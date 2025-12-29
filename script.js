@@ -170,38 +170,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Attach listener to initial "My to-do" link
-}
-
-    // --- Mobile Menu Logic ---
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-const sidebar = document.querySelector('.sidebar');
-const overlay = document.getElementById('overlay');
-
-function toggleSidebar() {
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('active');
-}
-
-function closeSidebar() {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('active');
-}
-
-if (mobileMenuBtn) {
-    mobileMenuBtn.addEventListener('click', toggleSidebar);
-}
-
-if (overlay) {
-    overlay.addEventListener('click', closeSidebar);
-}
-
-// Close sidebar when clicking a nav item on mobile
-const navItems = document.querySelectorAll('.nav-item');
-navItems.forEach(item => {
-    item.addEventListener('click', () => {
-        if (window.innerWidth <= 768) {
-            closeSidebar();
-        }
-    });
-});
+    const initialLink = document.querySelector('.lists-section .nav-item');
+    if (initialLink) {
+        initialLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            initialLink.classList.add('active');
+            switchList('My To-Do List');
+        });
+    }
 });

@@ -19,6 +19,18 @@ document.addEventListener('DOMContentLoaded', () => {
         todoList.innerHTML = ''; // Clear current view
         const currentTasks = tasks[currentList] || [];
 
+        // Check for empty state
+        if (currentTasks.length === 0) {
+            todoList.innerHTML = `
+                <li class="empty-state">
+                    <div class="icon">☕️</div>
+                    <div class="text">모든 작업을 완료했어요!<br>자유 시간을 즐기세요.</div>
+                </li>
+            `;
+            updateTaskCount();
+            return;
+        }
+
         currentTasks.forEach((task, index) => {
             const li = document.createElement('li');
             if (task.completed) li.classList.add('completed');
@@ -158,13 +170,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Attach listener to initial "My to-do" link
-    const initialLink = document.querySelector('.lists-section .nav-item');
-    if (initialLink) {
-        initialLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            initialLink.classList.add('active');
-            switchList('My To-Do List');
-        });
-    }
+}
+
+    // --- Mobile Menu Logic ---
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+const sidebar = document.querySelector('.sidebar');
+const overlay = document.getElementById('overlay');
+
+function toggleSidebar() {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+}
+
+function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+}
+
+if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener('click', toggleSidebar);
+}
+
+if (overlay) {
+    overlay.addEventListener('click', closeSidebar);
+}
+
+// Close sidebar when clicking a nav item on mobile
+const navItems = document.querySelectorAll('.nav-item');
+navItems.forEach(item => {
+    item.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            closeSidebar();
+        }
+    });
+});
 });

@@ -132,7 +132,27 @@ document.addEventListener('DOMContentLoaded', () => {
             checkbox.addEventListener('change', () => {
                 task.completed = checkbox.checked;
                 li.classList.toggle('completed');
+
+                // Disable/enable bookmark buttons based on completion
+                if (task.completed) {
+                    starBtn.disabled = true;
+                    todayBtn.disabled = true;
+                    starBtn.style.opacity = '0.3';
+                    todayBtn.style.opacity = '0.3';
+                    starBtn.style.cursor = 'not-allowed';
+                    todayBtn.style.cursor = 'not-allowed';
+                } else {
+                    starBtn.disabled = false;
+                    todayBtn.disabled = false;
+                    starBtn.style.opacity = '';
+                    todayBtn.style.opacity = '';
+                    starBtn.style.cursor = 'pointer';
+                    todayBtn.style.cursor = 'pointer';
+                }
+
                 saveTasks();
+                updateMainFilterCounts();
+                // Update count when task is checked/unchecked
             });
 
             const span = document.createElement('span');
@@ -150,6 +170,10 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             starBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
+
+                // Prevent toggling if task is completed
+                if (task.completed) return;
+
                 task.priority = !task.priority;
 
                 // Update button visual state without full re-render
@@ -176,6 +200,10 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             todayBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
+
+                // Prevent toggling if task is completed
+                if (task.completed) return;
+
                 task.isToday = !task.isToday;
 
                 // Update button visual state without full re-render
@@ -227,6 +255,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             leftContent.appendChild(checkbox);
             leftContent.appendChild(span);
+
+            // Set initial disabled state for bookmark buttons if task is completed
+            if (task.completed) {
+                starBtn.disabled = true;
+                todayBtn.disabled = true;
+                starBtn.style.opacity = '0.3';
+                todayBtn.style.opacity = '0.3';
+                starBtn.style.cursor = 'not-allowed';
+                todayBtn.style.cursor = 'not-allowed';
+            }
 
             const actionsDiv = document.createElement('div');
             actionsDiv.className = 'actions-div';
@@ -295,10 +333,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         Object.values(tasks).forEach(listTasks => {
             listTasks.forEach(task => {
-                const isAddedToday = new Date(task.dateAdded).toDateString() === todayDate;
-                if (isAddedToday || task.isToday) tCount++;
-                if (task.priority) iCount++;
-                allTasksCount++;
+                // Only count tasks that are not completed
+                if (!task.completed) {
+                    const isAddedToday = new Date(task.dateAdded).toDateString() === todayDate;
+                    if (isAddedToday || task.isToday) tCount++;
+                    if (task.priority) iCount++;
+                    allTasksCount++;
+                }
             });
         });
 

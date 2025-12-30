@@ -389,6 +389,8 @@ body::before {
 
 #todo-list {
     list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
 #todo-list li {

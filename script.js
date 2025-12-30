@@ -137,17 +137,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (task.completed) {
                     starBtn.disabled = true;
                     todayBtn.disabled = true;
+                    timeBtn.disabled = true; // Disable time btn
                     starBtn.style.opacity = '0.3';
                     todayBtn.style.opacity = '0.3';
+                    timeBtn.style.opacity = '0.3'; // Dim time btn
                     starBtn.style.cursor = 'not-allowed';
                     todayBtn.style.cursor = 'not-allowed';
+                    timeBtn.style.cursor = 'not-allowed'; // Cursor change
                 } else {
                     starBtn.disabled = false;
                     todayBtn.disabled = false;
+                    timeBtn.disabled = false; // Enable time btn
                     starBtn.style.opacity = '';
                     todayBtn.style.opacity = '';
+                    timeBtn.style.opacity = ''; // Restore opacity
                     starBtn.style.cursor = 'pointer';
                     todayBtn.style.cursor = 'pointer';
+                    timeBtn.style.cursor = 'pointer'; // Restore cursor
                 }
 
                 saveTasks();
@@ -217,6 +223,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 saveTasks();
                 updateMainFilterCounts();
+            });
+
+            // Time (AM/PM) Toggle Button
+            const timeBtn = document.createElement('button');
+            const getTimeContent = (amPm) => {
+                if (amPm === 'AM') return 'AM';
+                if (amPm === 'PM') return 'PM';
+                // Default Clock Icon
+                return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>`;
+            };
+
+            timeBtn.className = `time-btn ${task.amPm ? task.amPm.toLowerCase() : ''}`;
+            timeBtn.title = "Set Time (AM/PM)";
+            timeBtn.innerHTML = getTimeContent(task.amPm);
+
+            // Set initial disabled state if task is completed
+            if (task.completed) {
+                timeBtn.disabled = true;
+                timeBtn.style.opacity = '0.3';
+                timeBtn.style.cursor = 'not-allowed';
+            }
+
+            timeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+
+                // Prevent toggling if task is completed
+                if (task.completed) return;
+
+                // Cycle: null -> 'AM' -> 'PM' -> null
+                if (!task.amPm) {
+                    task.amPm = 'AM';
+                } else if (task.amPm === 'AM') {
+                    task.amPm = 'PM';
+                } else {
+                    task.amPm = null;
+                }
+
+                // Update visual state
+                timeBtn.className = `time-btn ${task.amPm ? task.amPm.toLowerCase() : ''}`;
+                timeBtn.innerHTML = getTimeContent(task.amPm);
+
+                saveTasks();
             });
 
             // Edit
@@ -292,6 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             actionsDiv.appendChild(starBtn);
             actionsDiv.appendChild(todayBtn);
+            actionsDiv.appendChild(timeBtn); // Add time button
             actionsDiv.appendChild(editBtn);
             actionsDiv.appendChild(deleteBtn);
             li.appendChild(leftContent);

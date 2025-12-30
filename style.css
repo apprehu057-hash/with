@@ -618,6 +618,57 @@ body::before {
     color: #666;
 }
 
+/* Time (AM/PM) Button Styles */
+.time-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ccc;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.time-btn.am {
+    color: #3b82f6;
+    /* Blue for AM */
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.time-btn.pm {
+    color: #f97316;
+    /* Orange for PM */
+    background-color: rgba(249, 115, 22, 0.1);
+}
+
+.time-btn:hover {
+    color: #888;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.time-btn.am:hover {
+    color: #2563eb;
+    background-color: rgba(59, 130, 246, 0.2);
+}
+
+.time-btn.pm:hover {
+    color: #ea580c;
+    background-color: rgba(249, 115, 22, 0.2);
+}
+
+/* Ensure SVG inside fits nicely */
+.time-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
     body {
@@ -705,6 +756,7 @@ body::before {
 
     .priority-btn,
     .today-btn,
+    .time-btn,
     .delete-btn,
     .edit-btn {
         padding: 3px !important;
@@ -712,6 +764,7 @@ body::before {
 
     .priority-btn svg,
     .today-btn svg,
+    .time-btn svg,
     .delete-btn svg,
     .edit-btn svg {
         width: 14px !important;

@@ -205,6 +205,14 @@ body::before {
     border: 1px solid var(--paper-line);
 }
 
+.nav-item svg {
+    flex-shrink: 0;
+}
+
+.nav-item.active svg {
+    color: var(--accent);
+}
+
 .nav-item .list-actions {
     display: none;
     gap: 5px;
@@ -436,33 +444,65 @@ body::before {
     font-weight: 500;
 }
 
-.priority-btn {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: #ffd700;
-    opacity: 0.2;
-    transition: opacity 0.2s;
-}
-
-.priority-btn.active {
-    opacity: 1;
-}
-
+.priority-btn,
+.today-btn,
 .delete-btn,
 .edit-btn {
     background: none;
     border: none;
     cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 6px;
     color: var(--text-secondary);
+}
+
+.priority-btn,
+.today-btn {
+    opacity: 0.3;
+}
+
+.priority-btn:hover,
+.today-btn:hover {
+    opacity: 0.8;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.today-btn.active {
+    color: #FF9800;
+    /* Today Orange */
+    opacity: 1;
+}
+
+.priority-btn.active {
+    color: #FBC02D;
+    /* Important Yellow */
+    opacity: 1;
+}
+
+.delete-btn,
+.edit-btn {
     opacity: 0;
-    padding: 5px;
+    transform: scale(0.9);
 }
 
 #todo-list li:hover .delete-btn,
 #todo-list li:hover .edit-btn {
+    opacity: 0.6;
+    transform: scale(1);
+}
+
+#todo-list li:hover .delete-btn:hover,
+#todo-list li:hover .edit-btn:hover {
     opacity: 1;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.delete-btn:hover {
+    color: #e57373;
 }
 
 /* Input Area - Looks like a handwritten entry line */

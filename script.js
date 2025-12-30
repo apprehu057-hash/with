@@ -72,10 +72,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (currentList === 'Today') {
             isFilterMode = true;
             const today = new Date().toDateString();
-            Object.values(tasks).forEach(listTasks => {
-                listTasks.forEach(task => {
-                    if (new Date(task.dateAdded).toDateString() === today) {
-                        currentTasks.push(task);
+            Object.keys(tasks).forEach(listName => {
+                tasks[listName].forEach(task => {
+                    const isAddedToday = new Date(task.dateAdded).toDateString() === today;
+                    if (isAddedToday || task.isToday) {
+                        currentTasks.push({ ...task, originalList: listName });
                     }
                 });
             });
@@ -116,15 +117,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const leftContent = document.createElement('div');
             leftContent.classList.add('left-content');
 
-            // Priority Button
+            // Priority (Important) Button - Using Unified Bookmark SVG
             const starBtn = document.createElement('button');
             starBtn.className = `priority-btn ${task.priority ? 'active' : ''}`;
-            starBtn.innerHTML = '★';
+            starBtn.title = "Mark as Important";
+            starBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="${task.priority ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+            `;
             starBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 task.priority = !task.priority;
                 saveTasks();
                 renderTasks();
+                renderSidebar();
             });
 
             // Checkbox
@@ -142,10 +149,37 @@ document.addEventListener('DOMContentLoaded', () => {
             span.textContent = task.text;
             span.classList.add('task-text');
 
+            // Today Toggle Button - Using Unified Bookmark SVG
+            const todayBtn = document.createElement('button');
+            todayBtn.className = `today-btn ${task.isToday ? 'active' : ''}`;
+            todayBtn.title = "Add to Today";
+            todayBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="${task.isToday ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+            `;
+            todayBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const listName = task.originalList || Object.keys(tasks).find(ln => tasks[ln].includes(task));
+                const originalTask = tasks[listName].find(t => t.id === task.id || (t.text === task.text && t.dateAdded === task.dateAdded));
+                if (originalTask) {
+                    originalTask.isToday = !originalTask.isToday;
+                    saveTasks();
+                    renderTasks();
+                    renderSidebar();
+                }
+            });
+
             // Edit
             const editBtn = document.createElement('button');
-            editBtn.innerHTML = '✎';
+            editBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+            `;
             editBtn.className = 'edit-btn';
+            editBtn.title = "Edit Task";
             editBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const editInput = document.createElement('input');
@@ -178,6 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
             actionsDiv.className = 'actions-div';
             actionsDiv.style.display = 'flex';
             actionsDiv.style.alignItems = 'center';
+            actionsDiv.style.gap = '8px';
 
             const deleteBtn = document.createElement('button');
             deleteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
@@ -197,6 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 300);
             });
 
+            actionsDiv.appendChild(todayBtn);
             actionsDiv.appendChild(editBtn);
             actionsDiv.appendChild(deleteBtn);
             li.appendChild(leftContent);
@@ -236,7 +272,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         Object.values(tasks).forEach(listTasks => {
             listTasks.forEach(task => {
-                if (new Date(task.dateAdded).toDateString() === todayDate) tCount++;
+                const isAddedToday = new Date(task.dateAdded).toDateString() === todayDate;
+                if (isAddedToday || task.isToday) tCount++;
                 if (task.priority) iCount++;
             });
         });
@@ -257,14 +294,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderSidebar() {
         // Main Nav Listeners
         const navItems = [
-            { id: 'nav-today', name: 'Today' },
-            { id: 'nav-important', name: 'Important' }
+            { id: 'nav-today', name: 'Today', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>' },
+            { id: 'nav-important', name: 'Important', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>' }
         ];
 
         navItems.forEach(item => {
             const el = document.getElementById(item.id);
             if (el) {
                 el.classList.toggle('active', currentList === item.name);
+                // Dynamically update icon
+                const iconContainer = el.querySelector('svg') || el;
+                if (el.querySelector('svg')) {
+                    el.querySelector('svg').outerHTML = item.icon;
+                } else {
+                    el.innerHTML = item.icon + `<span>${item.name === 'Today' ? '오늘 할 일' : '중요'}</span>`;
+                }
+
                 el.onclick = (e) => {
                     e.preventDefault();
                     switchList(item.name);
@@ -361,9 +406,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!tasks[listToAddTo]) tasks[listToAddTo] = [];
             tasks[listToAddTo].push({
+                id: Date.now(),
                 text: text,
                 completed: false,
                 priority: currentList === 'Important',
+                isToday: currentList === 'Today',
                 dateAdded: new Date().toISOString()
             });
             input.value = '';

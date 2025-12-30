@@ -247,6 +247,18 @@ body {
 .main-header {
     margin-bottom: 20px;
     padding-left: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-primary);
+    padding: 5px;
 }
 
 .header-titles h1 {
@@ -492,7 +504,6 @@ body {
 @media (max-width: 768px) {
     body {
         background: var(--paper-cream);
-        /* Wood is too heavy on mobile */
     }
 
     .app-container {
@@ -504,8 +515,38 @@ body {
     }
 
     .sidebar {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        bottom: 0;
+        z-index: 2000;
+        transition: left 0.3s ease;
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
+        padding-left: 20px;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(2px);
+        z-index: 1500;
         display: none;
-        /* Simplification for now */
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    .mobile-menu-btn {
+        display: block;
     }
 
     .notebook-spiral {

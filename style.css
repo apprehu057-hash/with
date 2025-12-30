@@ -519,6 +519,10 @@ body::before {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    /* Flex child properties for proper shrinking */
+    flex: 1;
+    min-width: 0;
 }
 
 .priority-btn,

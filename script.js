@@ -89,6 +89,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             });
+        } else if (currentList === 'Tasks') {
+            isFilterMode = true;
+            Object.keys(tasks).forEach(listName => {
+                tasks[listName].forEach(task => {
+                    currentTasks.push({ ...task, originalList: listName });
+                });
+            });
         } else {
             currentTasks = tasks[currentList] || [];
         }
@@ -117,23 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const leftContent = document.createElement('div');
             leftContent.classList.add('left-content');
 
-            // Priority (Important) Button - Using Unified Bookmark SVG
-            const starBtn = document.createElement('button');
-            starBtn.className = `priority-btn ${task.priority ? 'active' : ''}`;
-            starBtn.title = "Mark as Important";
-            starBtn.innerHTML = `
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="${task.priority ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-                </svg>
-            `;
-            starBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                task.priority = !task.priority;
-                saveTasks();
-                renderTasks();
-                renderSidebar();
-            });
-
             // Checkbox
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
@@ -149,6 +139,32 @@ document.addEventListener('DOMContentLoaded', () => {
             span.textContent = task.text;
             span.classList.add('task-text');
 
+            // Priority (Important) Button - Using Unified Bookmark SVG
+            const starBtn = document.createElement('button');
+            starBtn.className = `priority-btn ${task.priority ? 'active' : ''}`;
+            starBtn.title = "Mark as Important";
+            starBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="${task.priority ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+            `;
+            starBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                task.priority = !task.priority;
+
+                // Update button visual state without full re-render
+                if (task.priority) {
+                    starBtn.classList.add('active');
+                    starBtn.querySelector('svg').setAttribute('fill', 'currentColor');
+                } else {
+                    starBtn.classList.remove('active');
+                    starBtn.querySelector('svg').setAttribute('fill', 'none');
+                }
+
+                saveTasks();
+                updateMainFilterCounts();
+            });
+
             // Today Toggle Button - Using Unified Bookmark SVG
             const todayBtn = document.createElement('button');
             todayBtn.className = `today-btn ${task.isToday ? 'active' : ''}`;
@@ -160,14 +176,19 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             todayBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const listName = task.originalList || Object.keys(tasks).find(ln => tasks[ln].includes(task));
-                const originalTask = tasks[listName].find(t => t.id === task.id || (t.text === task.text && t.dateAdded === task.dateAdded));
-                if (originalTask) {
-                    originalTask.isToday = !originalTask.isToday;
-                    saveTasks();
-                    renderTasks();
-                    renderSidebar();
+                task.isToday = !task.isToday;
+
+                // Update button visual state without full re-render
+                if (task.isToday) {
+                    todayBtn.classList.add('active');
+                    todayBtn.querySelector('svg').setAttribute('fill', 'currentColor');
+                } else {
+                    todayBtn.classList.remove('active');
+                    todayBtn.querySelector('svg').setAttribute('fill', 'none');
                 }
+
+                saveTasks();
+                updateMainFilterCounts();
             });
 
             // Edit
@@ -204,7 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 editInput.focus();
             });
 
-            leftContent.appendChild(starBtn);
             leftContent.appendChild(checkbox);
             leftContent.appendChild(span);
 
@@ -232,6 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 300);
             });
 
+            actionsDiv.appendChild(starBtn);
             actionsDiv.appendChild(todayBtn);
             actionsDiv.appendChild(editBtn);
             actionsDiv.appendChild(deleteBtn);
@@ -265,21 +286,25 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateMainFilterCounts() {
         const todayCount = document.querySelector('#nav-today .count') || createCountBadge('#nav-today');
         const importantCount = document.querySelector('#nav-important .count') || createCountBadge('#nav-important');
+        const tasksCount = document.querySelector('#nav-tasks-count');
 
         const todayDate = new Date().toDateString();
         let tCount = 0;
         let iCount = 0;
+        let allTasksCount = 0;
 
         Object.values(tasks).forEach(listTasks => {
             listTasks.forEach(task => {
                 const isAddedToday = new Date(task.dateAdded).toDateString() === todayDate;
                 if (isAddedToday || task.isToday) tCount++;
                 if (task.priority) iCount++;
+                allTasksCount++;
             });
         });
 
         todayCount.textContent = tCount;
         importantCount.textContent = iCount;
+        if (tasksCount) tasksCount.textContent = allTasksCount;
     }
 
     function createCountBadge(selector) {
@@ -295,7 +320,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Main Nav Listeners
         const navItems = [
             { id: 'nav-today', name: 'Today', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>' },
-            { id: 'nav-important', name: 'Important', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>' }
+            { id: 'nav-important', name: 'Important', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>' },
+            { id: 'nav-tasks', name: 'Tasks', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>' }
         ];
 
         navItems.forEach(item => {
@@ -307,7 +333,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (el.querySelector('svg')) {
                     el.querySelector('svg').outerHTML = item.icon;
                 } else {
-                    el.innerHTML = item.icon + `<span>${item.name === 'Today' ? '오늘 할 일' : '중요'}</span>`;
+                    const labelMap = { 'Today': '오늘 할 일', 'Important': '중요', 'Tasks': '작업' };
+                    el.innerHTML = item.icon + `<span>${labelMap[item.name]}</span>`;
                 }
 
                 el.onclick = (e) => {

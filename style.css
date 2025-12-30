@@ -278,7 +278,7 @@ body::before {
     display: flex;
     flex-direction: column;
     padding: 40px 50px;
-    background-image: linear-gradient(var(--paper-line) 1px, transparent 1px);
+    background-image: linear-gradient(transparent 35px, var(--paper-line) 1px);
     background-size: 100% 36px;
     background-attachment: local;
     position: relative;
@@ -325,7 +325,8 @@ body::before {
 .task-list-container {
     flex: 1;
     overflow-y: auto;
-    padding-top: 10px;
+    padding-top: 0;
+    /* Remove padding to align first line with background */
 }
 
 #todo-list {
@@ -334,11 +335,13 @@ body::before {
 
 #todo-list li {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
+    /* Align items to bottom */
     justify-content: space-between;
-    min-height: 36px;
-    /* Match background line height */
-    padding: 0 10px;
+    height: 36px;
+    /* Exact match with background line height */
+    padding: 0 10px 2px 10px;
+    /* Add bottom padding to sit on the line */
     transition: background 0.2s, opacity 0.3s, transform 0.3s;
     animation: slideIn 0.3s ease-out;
 }
@@ -442,6 +445,8 @@ body::before {
     font-size: 17px;
     color: #333;
     font-weight: 500;
+    line-height: 36px;
+    /* Match background line spacing */
 }
 
 .priority-btn,
@@ -690,5 +695,42 @@ body::before {
 
     .header-titles h1 {
         font-size: 28px;
+    }
+
+    /* Mobile Task List Adjustments */
+    .task-text {
+        font-size: 14px;
+    }
+
+    .priority-btn,
+    .today-btn,
+    .delete-btn,
+    .edit-btn {
+        padding: 4px;
+    }
+
+    .priority-btn svg,
+    .today-btn svg,
+    .delete-btn svg,
+    .edit-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .custom-checkbox {
+        width: 18px;
+        height: 18px;
+    }
+
+    .left-content {
+        gap: 10px;
+    }
+
+    .actions-div {
+        gap: 4px !important;
+    }
+
+    #todo-list li {
+        padding: 0 5px;
     }
 }

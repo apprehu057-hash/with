@@ -312,10 +312,10 @@ body::before {
     position: relative;
     overflow: hidden;
 
-    /* Lined Paper Effect moved here */
-    background-image: linear-gradient(transparent 35px, var(--paper-line) 1px);
-    background-size: 100% 36px;
-    background-attachment: local;
+    /* Lined Paper Effect REMOVED from here to fix alignment */
+    /* background-image: linear-gradient(transparent 35px, var(--paper-line) 1px); */
+    /* background-size: 100% 36px; */
+    /* background-attachment: local; */
 }
 
 #list-title {
@@ -376,10 +376,15 @@ body::before {
 .task-list-container {
     flex: 1;
     overflow-y: auto;
-    padding: 10px 50px 0 50px;
-    /* Top, Right, Bottom, Left. Left 50px > Red Line 40px */
+    padding: 0 50px 0 50px;
+    /* Reset top padding to 0 for background alignment */
     z-index: 1;
     /* Ensure above red line */
+
+    /* Lined Paper Effect moved here */
+    background-image: linear-gradient(transparent 35px, var(--paper-line) 1px);
+    background-size: 100% 36px;
+    background-attachment: local;
 }
 
 #todo-list {

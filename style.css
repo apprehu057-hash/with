@@ -1,6 +1,6 @@
 :root {
     /* Light Theme & Glassmorphism Variables */
-    --bg-gradient: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+    --bg-gradient: linear-gradient(135deg, #9ad9ea, #ffc90d);
     --bg-glass: rgba(255, 255, 255, 0.25);
     --bg-glass-heavy: rgba(255, 255, 255, 0.4);
     --border-glass: rgba(255, 255, 255, 0.5);
@@ -353,6 +353,62 @@ li:hover .delete-btn {
     background: #fff;
     color: var(--danger);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Priority Button */
+.priority-btn {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 18px;
+    margin-right: 10px;
+    transition: color 0.2s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.priority-btn:hover {
+    transform: scale(1.1);
+    color: #ffd700;
+}
+
+.priority-btn.active {
+    color: #ffd700;
+}
+
+/* Edit Button */
+.edit-btn {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 16px;
+    margin-right: 15px;
+    /* Space before delete button */
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-btn:hover {
+    color: var(--accent);
+}
+
+/* Edit Input */
+.edit-input {
+    font-size: 15px;
+    color: var(--text-primary);
+    font-weight: 500;
+    font-family: inherit;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--accent);
+    outline: none;
+    width: 100%;
+    padding: 2px 0;
 }
 
 /* Input Area Fixed Bottom */

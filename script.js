@@ -35,9 +35,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const saved = localStorage.getItem('todoTasks');
         return saved ? JSON.parse(saved) : {
             'My To-Do List': [
-                { text: "Buy groceries", completed: false },
-                { text: "Walk the dog", completed: false },
-                { text: "Complete the project", completed: false }
+                { text: "Buy groceries", completed: false, priority: false },
+                { text: "Walk the dog", completed: false, priority: false },
+                { text: "Complete the project", completed: false, priority: true }
             ]
         };
     }
@@ -60,12 +60,30 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Sort tasks: Priority first
+        currentTasks.sort((a, b) => {
+            return (b.priority === true) - (a.priority === true);
+        });
+
         currentTasks.forEach((task, index) => {
             const li = document.createElement('li');
             if (task.completed) li.classList.add('completed');
 
             const leftContent = document.createElement('div');
             leftContent.classList.add('left-content');
+
+            // Priority Button
+            const starBtn = document.createElement('button');
+            starBtn.className = `priority-btn ${task.priority ? 'active' : ''}`;
+            starBtn.innerHTML = '★'; // Or SVG star
+            starBtn.title = "Toggle Priority";
+
+            starBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                task.priority = !task.priority;
+                saveTasks();
+                renderTasks();
+            });
 
             // Checkbox
             const checkbox = document.createElement('input');
@@ -83,8 +101,58 @@ document.addEventListener('DOMContentLoaded', () => {
             span.textContent = task.text;
             span.classList.add('task-text');
 
+            // Edit Button
+            const editBtn = document.createElement('button');
+            editBtn.innerHTML = '✎'; // Pencil icon
+            editBtn.className = 'edit-btn';
+            editBtn.title = "Edit Task";
+
+            editBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+
+                // Replace span with input
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = task.text;
+                input.className = 'edit-input';
+
+                const saveEdit = () => {
+                    const newText = input.value.trim();
+                    if (newText) {
+                        task.text = newText;
+                        saveTasks();
+                        renderTasks();
+                    } else {
+                        // If empty, revert or delete? Let's revert for now or stay in edit mode. 
+                        // Reverting is safer.
+                        renderTasks();
+                    }
+                };
+
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        saveEdit();
+                    }
+                });
+
+                input.addEventListener('blur', () => {
+                    saveEdit();
+                });
+
+                leftContent.replaceChild(input, span);
+                input.focus();
+            });
+
+            leftContent.appendChild(starBtn);
             leftContent.appendChild(checkbox);
             leftContent.appendChild(span);
+            // We append editBtn to the right side or near the delete button? 
+            // The prompt implied clicking the item enters edit mode OR a button.
+            // "오늘 할 일 항목을 누르면 편집 모드 진입: 버튼을 누르면 해당 항목을 바로 수정할 수 있도록"
+            // Let's put the edit button near the delete button (right side) or before text?
+            // Usually modify actions are grouped. Let's put it on the right side next to delete button.
+            // But waiting, flex layout: li has `space-between`. Left content has checkbox+text.
+            // Let's add edit button to `li` (right side) before delete button.
 
             const deleteBtn = document.createElement('button');
             deleteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
@@ -98,7 +166,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             li.appendChild(leftContent);
-            li.appendChild(deleteBtn);
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.style.display = 'flex';
+            actionsDiv.style.alignItems = 'center';
+
+            actionsDiv.appendChild(editBtn);
+            actionsDiv.appendChild(deleteBtn);
+
+            li.appendChild(actionsDiv);
 
             todoList.appendChild(li);
         });
@@ -128,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!tasks[currentList]) {
             tasks[currentList] = [];
         }
-        tasks[currentList].push({ text: text, completed: false });
+        tasks[currentList].push({ text: text, completed: false, priority: false });
         saveTasks();
         renderTasks();
 

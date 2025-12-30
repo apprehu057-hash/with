@@ -4,6 +4,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const headerTitle = document.querySelector('.header-titles h1');
     const taskCountSpan = document.getElementById('task-count');
 
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+        });
+    }
+
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        });
+    }
+
     // State Management
     let currentList = 'My To-Do List';
     // Tasks object: { 'ListName': [ { text: '...', completed: false } ] }

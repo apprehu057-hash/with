@@ -1,15 +1,18 @@
 :root {
-    --bg-dark: #1e1e1e;
-    --bg-sidebar: #252526;
-    /* Slightly lighter than main bg */
-    --bg-main: #141414;
-    --text-primary: #ffffff;
-    --text-secondary: #a0a0a0;
-    --accent: #3a71c1;
-    /* Microsoft To Do blue-ish */
-    --hover-bg: rgba(255, 255, 255, 0.08);
-    --border-color: #3e3e3e;
-    --danger: #ff6b6b;
+    /* Light Theme & Glassmorphism Variables */
+    --bg-gradient: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+    --bg-glass: rgba(255, 255, 255, 0.25);
+    --bg-glass-heavy: rgba(255, 255, 255, 0.4);
+    --border-glass: rgba(255, 255, 255, 0.5);
+    --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+
+    --text-primary: #2d3436;
+    --text-secondary: #636e72;
+    --accent: #6c5ce7;
+    --danger: #ff7675;
+
+    --hover-bg: rgba(255, 255, 255, 0.5);
+    --active-bg: rgba(255, 255, 255, 0.7);
 }
 
 * {
@@ -21,7 +24,7 @@
 
 body {
     height: 100vh;
-    background-color: var(--bg-main);
+    background: var(--bg-gradient);
     color: var(--text-primary);
     overflow: hidden;
 }
@@ -30,16 +33,23 @@ body {
     display: flex;
     height: 100%;
     width: 100%;
+    position: relative;
+    /* For mobile positioning context */
 }
 
 /* --- SIDEBAR --- */
 .sidebar {
     width: 280px;
-    background-color: var(--bg-sidebar);
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-right: 1px solid var(--border-glass);
     display: flex;
     flex-direction: column;
     padding: 20px 10px;
-    border-right: 1px solid #000;
+    box-shadow: var(--shadow-glass);
+    z-index: 10;
+    transition: transform 0.3s ease, left 0.3s ease;
 }
 
 .user-profile {
@@ -48,19 +58,22 @@ body {
     gap: 12px;
     padding: 10px 15px;
     margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .avatar {
     width: 36px;
     height: 36px;
-    background: #bd59d4;
-    /* Purple accent */
+    background: rgba(255, 255, 255, 0.5);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 600;
     font-size: 14px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .user-info {
@@ -69,8 +82,9 @@ body {
 }
 
 .user-info .name {
-    font-weight: 500;
+    font-weight: 600;
     font-size: 14px;
+    color: var(--text-primary);
 }
 
 .user-info .email {
@@ -79,45 +93,62 @@ body {
 }
 
 .search-box {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
     padding: 8px 12px;
     margin: 0 10px 20px;
     display: flex;
     align-items: center;
     gap: 8px;
     color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.search-box:focus-within {
+    background: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .search-box input {
     background: transparent;
     border: none;
-    color: white;
+    color: var(--text-primary);
     width: 100%;
     outline: none;
     font-size: 14px;
+}
+
+.search-box input::placeholder {
+    color: var(--text-secondary);
 }
 
 .nav-item {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 15px;
+    padding: 8px 12px;
+    /* COMPACT: Reduced vertical padding */
     text-decoration: none;
     color: var(--text-secondary);
-    border-radius: 6px;
-    transition: background 0.2s;
+    border-radius: 8px;
+    transition: all 0.2s;
     font-size: 14px;
+    margin-bottom: 2px;
+    /* COMPACT: Reduced margin */
 }
 
 .nav-item:hover {
     background-color: var(--hover-bg);
+    color: var(--text-primary);
+    transform: translateX(2px);
 }
 
 .nav-item.active {
-    background-color: var(--hover-bg);
-    /* Or specific active color */
-    color: var(--text-primary);
+    background-color: var(--active-bg);
+    color: var(--accent);
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .nav-item svg {
@@ -126,20 +157,30 @@ body {
 
 .nav-item .count {
     margin-left: auto;
-    font-size: 12px;
+    font-size: 11px;
+    /* COMPACT: Smaller font */
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 6px;
+    /* COMPACT: Smaller padding */
+    border-radius: 8px;
 }
 
 .section-title {
-    font-size: 12px;
-    color: var(--text-secondary);
-    padding: 20px 15px 10px;
-    font-weight: 600;
+    font-size: 11px;
+    /* COMPACT: Smaller font */
+    color: var(--text-primary);
+    opacity: 0.7;
+    padding: 15px 12px 8px;
+    /* COMPACT: Adjusted padding */
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .sidebar-footer {
     margin-top: auto;
     padding: 15px;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-glass);
 }
 
 .icon-btn {
@@ -151,10 +192,11 @@ body {
     gap: 8px;
     cursor: pointer;
     font-size: 14px;
+    transition: color 0.2s;
 }
 
 .icon-btn:hover {
-    color: white;
+    color: var(--text-primary);
 }
 
 /* --- MAIN CONTENT --- */
@@ -162,18 +204,43 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: var(--bg-main);
+    background: transparent;
     position: relative;
+    width: 100%;
 }
 
 .main-header {
-    padding: 30px 40px;
+    padding: 25px 30px;
+    /* Reduced slightly */
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Mobile Menu Button - Hidden by default */
+.mobile-menu-btn {
+    display: none;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    backdrop-filter: blur(4px);
 }
 
 .header-titles h1 {
     font-size: 32px;
-    font-weight: 700;
-    color: var(--accent);
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 0px) {
+    .header-titles h1 {
+        color: var(--text-primary);
+        text-shadow: none;
+    }
 }
 
 .task-list-container {
@@ -187,18 +254,23 @@ ul {
 }
 
 li {
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--bg-glass);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-glass);
     padding: 12px 16px;
-    margin-bottom: 4px;
-    border-radius: 6px;
+    margin-bottom: 8px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    transition: background 0.2s;
+    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
 }
 
 li:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--bg-glass-heavy);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
 li .left-content {
@@ -211,30 +283,31 @@ li .left-content {
 .custom-checkbox {
     appearance: none;
     -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #555;
+    width: 22px;
+    height: 22px;
+    border: 2px solid #888;
     border-radius: 50%;
     margin-right: 15px;
     cursor: pointer;
     position: relative;
     transition: all 0.2s;
-    background: transparent;
+    background: rgba(255, 255, 255, 0.5);
 }
 
 .custom-checkbox:hover {
-    border-color: #888;
+    border-color: var(--accent);
+    background: #fff;
 }
 
 .custom-checkbox:checked {
-    background: #555;
-    border-color: #555;
+    background: var(--accent);
+    border-color: var(--accent);
 }
 
 .custom-checkbox:checked::after {
     content: '✔';
     color: white;
-    font-size: 10px;
+    font-size: 11px;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -243,23 +316,32 @@ li .left-content {
 
 .task-text {
     font-size: 15px;
-    color: #e0e0e0;
+    color: var(--text-primary);
+    font-weight: 500;
 }
 
 li.completed .task-text {
     text-decoration: line-through;
-    color: #666;
+    color: #999;
+}
+
+li.completed {
+    opacity: 0.8;
 }
 
 /* Delete Button */
 .delete-btn {
-    background: none;
-    border: none;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid transparent;
     color: #666;
     cursor: pointer;
     opacity: 0;
-    padding: 4px;
-    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
     transition: all 0.2s;
 }
 
@@ -268,46 +350,58 @@ li:hover .delete-btn {
 }
 
 .delete-btn:hover {
-    background: rgba(255, 107, 107, 0.2);
+    background: #fff;
     color: var(--danger);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 /* Input Area Fixed Bottom */
 .input-area-wrapper {
     padding: 20px 40px 30px;
-    background: linear-gradient(to top, var(--bg-main) 80%, transparent);
-    /* Fade out top */
+    background: transparent;
 }
 
 .input-area {
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
     display: flex;
     align-items: center;
-    padding: 0 15px;
+    padding: 0 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s;
+}
+
+.input-area:focus-within {
+    background: rgba(255, 255, 255, 0.7);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
 .add-icon {
     background: none;
     border: none;
     color: var(--accent);
-    font-size: 24px;
-    margin-right: 10px;
+    font-size: 26px;
+    margin-right: 12px;
     cursor: default;
+    font-weight: 300;
 }
 
 .input-area input {
     background: transparent;
     border: none;
-    padding: 15px 0;
+    padding: 18px 0;
     width: 100%;
-    color: white;
-    font-size: 15px;
+    color: var(--text-primary);
+    font-size: 16px;
     outline: none;
 }
 
 .input-area input::placeholder {
-    color: #666;
+    color: #7f8c8d;
 }
 
 /* Scrollbar */
@@ -320,14 +414,19 @@ li:hover .delete-btn {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #333;
+    background: rgba(0, 0, 0, 0.1);
     border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.2);
 }
 
 /* Empty State Message */
 li.empty-state {
     background: none !important;
-    /* Override default li bg */
+    border: none;
+    box-shadow: none;
     padding: 40px 0;
     margin: 0;
     display: flex;
@@ -339,14 +438,14 @@ li.empty-state {
 }
 
 li.empty-state:hover {
-    background: none !important;
+    transform: none;
 }
 
 .empty-state .icon {
     font-size: 64px;
     margin-bottom: 24px;
     animation: float 3s ease-in-out infinite;
-    filter: drop-shadow(0 0 20px rgba(58, 113, 193, 0.2));
+    filter: drop-shadow(0 10px 20px rgba(108, 92, 231, 0.3));
 }
 
 .empty-state .text {
@@ -368,5 +467,77 @@ li.empty-state:hover {
 
     100% {
         transform: translateY(0px);
+    }
+}
+
+/* ----------------------------- */
+/* MOBILE RESPONSIVENESS (<768px) */
+/* ----------------------------- */
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: absolute;
+        left: -100%;
+        /* Hide off-screen */
+        top: 0;
+        bottom: 0;
+        width: 80%;
+        max-width: 300px;
+        z-index: 1000;
+        border-right: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .sidebar.active {
+        left: 0;
+        box-shadow: 10px 0 40px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Overlay */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(4px);
+        z-index: 900;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+
+    .mobile-menu-btn {
+        display: block !important;
+    }
+
+    .main-header {
+        padding: 15px 20px;
+    }
+
+    .task-list-container {
+        padding: 0 15px;
+    }
+
+    .input-area-wrapper {
+        padding: 15px 15px 20px;
+    }
+
+    .header-titles h1 {
+        font-size: 24px;
+    }
+
+    .input-area {
+        padding: 0 15px;
+    }
+
+    .input-area input {
+        padding: 14px 0;
+        font-size: 15px;
     }
 }

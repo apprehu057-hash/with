@@ -26,15 +26,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- State Management ---
-    let currentList = localStorage.getItem('currentList') || 'Daily Memo';
+    let currentList = localStorage.getItem('currentList') || 'My To-Do List';
 
     function loadTasks() {
         const saved = localStorage.getItem('todoTasks');
         return saved ? JSON.parse(saved) : {
-            'Daily Memo': [
-                { text: "Buy groceries", completed: false, priority: false, dateAdded: new Date().toISOString() },
-                { text: "Walk the dog", completed: false, priority: false, dateAdded: new Date().toISOString() },
-                { text: "Finish project", completed: false, priority: true, dateAdded: new Date().toISOString() }
+            'My To-Do List': [
+                { text: "Buy groceries", completed: false, priority: false, isToday: false, dateAdded: new Date().toISOString() },
+                { text: "Walk the dog", completed: false, priority: false, isToday: true, dateAdded: new Date().toISOString() },
+                { text: "Finish project", completed: false, priority: true, isToday: false, dateAdded: new Date().toISOString() }
             ]
         };
     }
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Ensure currentList is valid, otherwise fallback
     if (!tasks[currentList]) {
-        currentList = Object.keys(tasks)[0] || 'Daily Memo';
+        currentList = Object.keys(tasks)[0] || 'My To-Do List';
         if (!tasks[currentList]) {
             tasks[currentList] = [];
         }

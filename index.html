@@ -15,6 +15,24 @@
 
 <body>
     <div class="app-container">
+        <!-- Notebook Spiral -->
+        <div class="notebook-spiral">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+        </div>
+
         <!-- SIDEBAR -->
         <div class="sidebar-overlay" id="sidebar-overlay"></div>
         <aside class="sidebar" id="sidebar">
@@ -85,7 +103,7 @@
                         <line x1="3" y1="12" x2="3.01" y2="12"></line>
                         <line x1="3" y1="18" x2="3.01" y2="18"></line>
                     </svg>
-                    <span>My To-Do List</span>
+                    <span>하루 메모</span>
                     <span class="count" id="task-count">0</span>
                 </a>
             </div>
@@ -96,7 +114,7 @@
                         stroke-linecap="round" stroke-linejoin="round">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg> 새 목록</button>
+                    </svg> 새 페이지</button>
             </div>
         </aside>
 
@@ -112,7 +130,7 @@
                     </svg>
                 </button>
                 <div class="header-titles">
-                    <h1>My To-Do List</h1>
+                    <h1>하루 메모</h1>
                     <div class="header-actions">
                         <button class="icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -134,10 +152,24 @@
             <div class="input-area-wrapper">
                 <div class="input-area">
                     <button class="add-icon">+</button>
-                    <input type="text" id="todo-input" placeholder="작업 추가" autocomplete="off">
+                    <input type="text" id="todo-input" placeholder="할 일 메모하기" autocomplete="off">
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- CUSTOM MODAL -->
+    <div id="modal-container" class="modal-overlay">
+        <div class="modal-content">
+            <h3>새 페이지 만들기</h3>
+            <div class="modal-input-wrapper">
+                <input type="text" id="modal-input" placeholder="페이지 이름을 입력하세요" autocomplete="off">
+            </div>
+            <div class="modal-actions">
+                <button id="modal-cancel" class="modal-btn secondary">취소</button>
+                <button id="modal-confirm" class="modal-btn primary">확인</button>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>

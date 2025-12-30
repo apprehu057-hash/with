@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // State Management
     // State Management
-    let currentList = 'My To-Do List';
+    let currentList = '하루 메모';
 
     function saveTasks() {
         localStorage.setItem('todoTasks', JSON.stringify(tasks));
@@ -34,15 +34,25 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadTasks() {
         const saved = localStorage.getItem('todoTasks');
         return saved ? JSON.parse(saved) : {
-            'My To-Do List': [
-                { text: "Buy groceries", completed: false, priority: false },
-                { text: "Walk the dog", completed: false, priority: false },
-                { text: "Complete the project", completed: false, priority: true }
+            '하루 메모': [
+                { text: "식재료 사기", completed: false, priority: false },
+                { text: "강아지 산책시키기", completed: false, priority: false },
+                { text: "프로젝트 마무리하기", completed: false, priority: true }
             ]
         };
     }
 
     let tasks = loadTasks();
+
+    // Ensure default list exists if starting fresh or renamed
+    if (!tasks[currentList]) {
+        tasks[currentList] = [
+            { text: "식재료 사기", completed: false, priority: false },
+            { text: "강아지 산책시키기", completed: false, priority: false },
+            { text: "프로젝트 마무리하기", completed: false, priority: true }
+        ];
+        saveTasks();
+    }
 
     function renderTasks() {
         todoList.innerHTML = ''; // Clear current view
@@ -52,8 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentTasks.length === 0) {
             todoList.innerHTML = `
                 <li class="empty-state">
-                    <div class="icon">☕️</div>
-                    <div class="text">모든 작업을 완료했어요!<br>자유 시간을 즐기세요.</div>
+                    <div class="text">이제 쉬어가기</div>
                 </li>
             `;
             updateTaskCount();
@@ -240,42 +249,75 @@ document.addEventListener('DOMContentLoaded', () => {
     // Activate default list
     renderTasks();
 
-    // New List Feature
     const newListBtn = document.getElementById('new-list-btn');
-    if (newListBtn) {
-        newListBtn.addEventListener('click', () => {
-            const listName = prompt("새 목록의 이름을 입력하세요:", `목록 ${Object.keys(tasks).length + 1}`);
-            if (listName && !tasks[listName]) {
-                // Initialize empty list
-                tasks[listName] = [];
-                saveTasks();
 
-                const listsSection = document.querySelector('.lists-section');
-                const newLink = document.createElement('a');
-                newLink.href = "#";
-                newLink.className = "nav-item";
-                newLink.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                    <span>${listName}</span>
-                    <span class="count">0</span>
-                `;
-                listsSection.appendChild(newLink);
+    // New List Feature (Custom Modal)
+    const modalContainer = document.getElementById('modal-container');
+    const modalInput = document.getElementById('modal-input');
+    const modalCancel = document.getElementById('modal-cancel');
+    const modalConfirm = document.getElementById('modal-confirm');
 
-                // Add click listener
-                newLink.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-                    newLink.classList.add('active');
-                    switchList(listName);
-                });
-
-                // Automatically switch to new list
-                newLink.click();
-            } else if (tasks[listName]) {
-                alert("이미 존재하는 목록 이름입니다.");
-            }
-        });
+    function openModal() {
+        modalContainer.classList.add('active');
+        modalInput.value = `페이지 ${Object.keys(tasks).length + 1}`;
+        setTimeout(() => modalInput.focus(), 100);
+        modalInput.select();
     }
+
+    function closeModal() {
+        modalContainer.classList.remove('active');
+    }
+
+    function handleCreateList() {
+        const listName = modalInput.value.trim();
+        if (listName && !tasks[listName]) {
+            tasks[listName] = [];
+            saveTasks();
+
+            const listsSection = document.querySelector('.lists-section');
+            const newLink = document.createElement('a');
+            newLink.href = "#";
+            newLink.className = "nav-item";
+            newLink.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                <span>${listName}</span>
+                <span class="count">0</span>
+            `;
+            listsSection.appendChild(newLink);
+
+            newLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                newLink.classList.add('active');
+                switchList(listName);
+            });
+
+            newLink.click();
+            closeModal();
+        } else if (tasks[listName]) {
+            alert("이미 존재하는 페이지 이름입니다.");
+        }
+    }
+
+    if (newListBtn) {
+        newListBtn.addEventListener('click', openModal);
+    }
+
+    if (modalCancel) {
+        modalCancel.addEventListener('click', closeModal);
+    }
+
+    if (modalConfirm) {
+        modalConfirm.addEventListener('click', handleCreateList);
+    }
+
+    modalInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleCreateList();
+    });
+
+    modalContainer.addEventListener('click', (e) => {
+        if (e.target === modalContainer) closeModal();
+    });
 
     // Attach listener to initial "My to-do" link
     const initialLink = document.querySelector('.lists-section .nav-item');
@@ -284,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             initialLink.classList.add('active');
-            switchList('My To-Do List');
+            switchList('하루 메모');
         });
     }
 });

@@ -312,20 +312,28 @@ body::before {
     position: relative;
     overflow: hidden;
 
-    /* Lined Paper Effect REMOVED from here to fix alignment */
-    /* background-image: linear-gradient(transparent 35px, var(--paper-line) 1px); */
-    /* background-size: 100% 36px; */
-    /* background-attachment: local; */
+    /* Lined Paper Effect RESTORED for continuous look */
+    background-image: linear-gradient(transparent 35px, var(--paper-line) 1px);
+    background-size: 100% 36px;
+    background-attachment: local;
 }
 
 #list-title {
     font-size: 24px;
     font-weight: 700;
     color: var(--text-primary);
-    padding: 20px 50px 10px 50px;
+
+    /* Enforce exact height multiple of 36px for grid alignment */
+    height: 72px;
+    /* 36px * 2 */
+    display: flex;
+    align-items: flex-end;
+    /* Align text to bottom of the 2nd line */
+    padding: 0 50px 10px 50px;
+    /* Adjust padding to fit */
+    box-sizing: border-box;
+
     margin: 0;
-    /* Clean look, no border needed if lines present, or add border */
-    /* border-bottom: 2px solid var(--accent); */
     z-index: 2;
 }
 
@@ -381,10 +389,7 @@ body::before {
     z-index: 1;
     /* Ensure above red line */
 
-    /* Lined Paper Effect moved here */
-    background-image: linear-gradient(transparent 35px, var(--paper-line) 1px);
-    background-size: 100% 36px;
-    background-attachment: local;
+    /* Background removed from here, relying on parent .paper-card */
 }
 
 #todo-list {
@@ -836,8 +841,8 @@ body::before {
     /* Mobile Task List Adjustments */
     .task-text {
         font-size: 14px !important;
-        line-height: 36px !important;
-        /* Match background line height */
+        line-height: normal !important;
+        /* Allow flex-end to align text to bottom */
     }
 
     .priority-btn,

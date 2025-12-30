@@ -541,6 +541,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Reset Handler
+    const navReset = document.getElementById('nav-reset');
+    if (navReset) {
+        navReset.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (confirm('정말로 모든 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+                localStorage.removeItem('todoTasks');
+                localStorage.removeItem('currentList');
+                location.reload();
+            }
+        });
+    }
+
     // Initial Render
     renderSidebar();
     renderTasks();

@@ -46,8 +46,10 @@ body::before {
 
 .app-container {
     display: flex;
-    width: 92%;
-    max-width: 1100px;
+    width: 95%;
+    /* Maximized width */
+    max-width: 1400px;
+    /* Larger max-width */
     height: 88vh;
     background: var(--paper-cream);
     border-radius: 5px 15px 15px 5px;
@@ -283,8 +285,8 @@ body::before {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 30px 50px;
-    /* Reduced padding slightly */
+    padding: 10px 20px;
+    /* Minimal padding to let card fill space */
     background: transparent;
     /* Removed lines from here */
     position: relative;

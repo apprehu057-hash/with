@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('todo-input');
     const todoList = document.getElementById('todo-list');
-    const headerTitle = document.querySelector('.header-titles h1');
+    const headerTitle = document.getElementById('list-title');
     const taskCountSpan = document.getElementById('task-count');
     const searchInput = document.querySelector('.search-box input');
     let searchQuery = '';
@@ -26,15 +26,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- State Management ---
-    let currentList = localStorage.getItem('currentList') || 'My To-Do List';
+    let currentList = localStorage.getItem('currentList') || '생활관리';
 
     function loadTasks() {
         const saved = localStorage.getItem('todoTasks');
         return saved ? JSON.parse(saved) : {
-            'My To-Do List': [
-                { text: "Buy groceries", completed: false, priority: false, isToday: false, dateAdded: new Date().toISOString() },
-                { text: "Walk the dog", completed: false, priority: false, isToday: true, dateAdded: new Date().toISOString() },
-                { text: "Finish project", completed: false, priority: true, isToday: false, dateAdded: new Date().toISOString() }
+            '생활관리': [
+                { text: '1. 장보기/ 필요한 물품 채우기', completed: false, dateAdded: new Date().toISOString() },
+                { text: '2. 청소, 빨래, 쓰레기 버리기', completed: false, dateAdded: new Date().toISOString() },
+                { text: '3. 은행 업무, 공과금 납부', completed: false, dateAdded: new Date().toISOString() }
+            ],
+            '일/학업': [
+                { text: '1. 오늘 꼭 처리해야 할 업무 1~2개', completed: false, dateAdded: new Date().toISOString() },
+                { text: '2. 마감일이 가까운 과제나 프로젝트', completed: false, dateAdded: new Date().toISOString() },
+                { text: '3. 이메일/메신저 확인 및 답장', completed: false, dateAdded: new Date().toISOString() }
+            ],
+            '자기 돌봄': [
+                { text: '1. 식사 챙기기 (특히 건강한 음식)', completed: false, dateAdded: new Date().toISOString() },
+                { text: '2. 운동이나 스트레칭', completed: false, dateAdded: new Date().toISOString() },
+                { text: '3. 충분한 휴식, 수면', completed: false, dateAdded: new Date().toISOString() },
+                { text: '4. 독서나 취미 활동', completed: false, dateAdded: new Date().toISOString() }
             ]
         };
     }
@@ -48,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Ensure currentList is valid, otherwise fallback
     if (!tasks[currentList]) {
-        currentList = Object.keys(tasks)[0] || 'My To-Do List';
+        currentList = Object.keys(tasks)[0] || '생활관리';
         if (!tasks[currentList]) {
             tasks[currentList] = [];
         }
@@ -64,7 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
             Object.keys(tasks).forEach(listName => {
                 tasks[listName].forEach(task => {
                     if (task.text.toLowerCase().includes(searchQuery.toLowerCase())) {
-                        // Clone task to avoid mutation issues during filtering if needed
                         currentTasks.push({ ...task, originalList: listName });
                     }
                 });
@@ -74,8 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const today = new Date().toDateString();
             Object.keys(tasks).forEach(listName => {
                 tasks[listName].forEach(task => {
-                    const isAddedToday = new Date(task.dateAdded).toDateString() === today;
-                    if (isAddedToday || task.isToday) {
+                    if (task.isToday) {
                         currentTasks.push({ ...task, originalList: listName });
                     }
                 });
@@ -106,25 +115,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="text">${searchQuery ? `'${searchQuery}'에 대한 검색 결과가 없습니다` : '이제 쉬어가기'}</div>
                 </li>
             `;
-            // Update counts even if no tasks
             updateMainFilterCounts();
             return;
         }
 
         headerTitle.textContent = searchQuery ? `Search: ${searchQuery}` : currentList;
 
-        // Sort: Priority first, then original order
         const sortedTasks = [...currentTasks].sort((a, b) => (b.priority === true) - (a.priority === true));
 
         sortedTasks.forEach((task) => {
-            const originalIndex = currentTasks.indexOf(task);
             const li = document.createElement('li');
             if (task.completed) li.classList.add('completed');
 
             const leftContent = document.createElement('div');
             leftContent.classList.add('left-content');
 
-            // Checkbox
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.checked = task.completed;
@@ -133,56 +138,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 task.completed = checkbox.checked;
                 li.classList.toggle('completed');
 
-                // Disable/enable bookmark buttons based on completion
                 if (task.completed) {
                     starBtn.disabled = true;
                     todayBtn.disabled = true;
-                    timeBtn.disabled = true; // Disable time btn
+                    timeBtn.disabled = true;
                     starBtn.style.opacity = '0.3';
                     todayBtn.style.opacity = '0.3';
-                    timeBtn.style.opacity = '0.3'; // Dim time btn
+                    timeBtn.style.opacity = '0.3';
                     starBtn.style.cursor = 'not-allowed';
                     todayBtn.style.cursor = 'not-allowed';
-                    timeBtn.style.cursor = 'not-allowed'; // Cursor change
+                    timeBtn.style.cursor = 'not-allowed';
                 } else {
                     starBtn.disabled = false;
                     todayBtn.disabled = false;
-                    timeBtn.disabled = false; // Enable time btn
+                    timeBtn.disabled = false;
                     starBtn.style.opacity = '';
                     todayBtn.style.opacity = '';
-                    timeBtn.style.opacity = ''; // Restore opacity
+                    timeBtn.style.opacity = '';
                     starBtn.style.cursor = 'pointer';
                     todayBtn.style.cursor = 'pointer';
-                    timeBtn.style.cursor = 'pointer'; // Restore cursor
+                    timeBtn.style.cursor = 'pointer';
                 }
 
                 saveTasks();
                 updateMainFilterCounts();
-                // Update count when task is checked/unchecked
             });
 
             const span = document.createElement('span');
             span.textContent = task.text;
             span.classList.add('task-text');
 
-            // Priority (Important) Button - Using Unified Bookmark SVG
             const starBtn = document.createElement('button');
             starBtn.className = `priority-btn ${task.priority ? 'active' : ''}`;
             starBtn.title = "Mark as Important";
             starBtn.innerHTML = `
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="${task.priority ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                 </svg>
             `;
             starBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-
-                // Prevent toggling if task is completed
                 if (task.completed) return;
-
                 task.priority = !task.priority;
-
-                // Update button visual state without full re-render
                 if (task.priority) {
                     starBtn.classList.add('active');
                     starBtn.querySelector('svg').setAttribute('fill', 'currentColor');
@@ -190,12 +187,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     starBtn.classList.remove('active');
                     starBtn.querySelector('svg').setAttribute('fill', 'none');
                 }
-
                 saveTasks();
                 updateMainFilterCounts();
             });
 
-            // Today Toggle Button - Using Unified Bookmark SVG
             const todayBtn = document.createElement('button');
             todayBtn.className = `today-btn ${task.isToday ? 'active' : ''}`;
             todayBtn.title = "Add to Today";
@@ -206,13 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             todayBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-
-                // Prevent toggling if task is completed
                 if (task.completed) return;
-
                 task.isToday = !task.isToday;
-
-                // Update button visual state without full re-render
                 if (task.isToday) {
                     todayBtn.classList.add('active');
                     todayBtn.querySelector('svg').setAttribute('fill', 'currentColor');
@@ -220,17 +210,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     todayBtn.classList.remove('active');
                     todayBtn.querySelector('svg').setAttribute('fill', 'none');
                 }
-
                 saveTasks();
                 updateMainFilterCounts();
             });
 
-            // Time (AM/PM) Toggle Button
             const timeBtn = document.createElement('button');
             const getTimeContent = (amPm) => {
                 if (amPm === 'AM') return 'AM';
                 if (amPm === 'PM') return 'PM';
-                // Default Clock Icon
+                if (amPm === 'Eve') return 'Eve';
                 return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
@@ -238,10 +226,9 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             timeBtn.className = `time-btn ${task.amPm ? task.amPm.toLowerCase() : ''}`;
-            timeBtn.title = "Set Time (AM/PM)";
+            timeBtn.title = "Set Time (AM/PM/Eve)";
             timeBtn.innerHTML = getTimeContent(task.amPm);
 
-            // Set initial disabled state if task is completed
             if (task.completed) {
                 timeBtn.disabled = true;
                 timeBtn.style.opacity = '0.3';
@@ -250,27 +237,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             timeBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-
-                // Prevent toggling if task is completed
                 if (task.completed) return;
 
-                // Cycle: null -> 'AM' -> 'PM' -> null
                 if (!task.amPm) {
                     task.amPm = 'AM';
                 } else if (task.amPm === 'AM') {
                     task.amPm = 'PM';
+                } else if (task.amPm === 'PM') {
+                    task.amPm = 'Eve';
                 } else {
                     task.amPm = null;
                 }
 
-                // Update visual state
                 timeBtn.className = `time-btn ${task.amPm ? task.amPm.toLowerCase() : ''}`;
                 timeBtn.innerHTML = getTimeContent(task.amPm);
-
                 saveTasks();
             });
 
-            // Edit
             const editBtn = document.createElement('button');
             editBtn.innerHTML = `
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -307,7 +290,6 @@ document.addEventListener('DOMContentLoaded', () => {
             leftContent.appendChild(checkbox);
             leftContent.appendChild(span);
 
-            // Set initial disabled state for bookmark buttons if task is completed
             if (task.completed) {
                 starBtn.disabled = true;
                 todayBtn.disabled = true;
@@ -343,13 +325,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             actionsDiv.appendChild(starBtn);
             actionsDiv.appendChild(todayBtn);
-            actionsDiv.appendChild(timeBtn); // Add time button
+            actionsDiv.appendChild(timeBtn);
             actionsDiv.appendChild(editBtn);
             actionsDiv.appendChild(deleteBtn);
             li.appendChild(leftContent);
             li.appendChild(actionsDiv);
 
-            // Add list name tag if in search/filter mode
             if (searchQuery || currentList === 'Today' || currentList === 'Important') {
                 const listName = task.originalList || Object.keys(tasks).find(ln => tasks[ln].includes(task));
                 if (listName) {
@@ -369,7 +350,6 @@ document.addEventListener('DOMContentLoaded', () => {
             todoList.appendChild(li);
         });
 
-        // Update counts for main filters
         updateMainFilterCounts();
     }
 
@@ -385,10 +365,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         Object.values(tasks).forEach(listTasks => {
             listTasks.forEach(task => {
-                // Only count tasks that are not completed
                 if (!task.completed) {
-                    const isAddedToday = new Date(task.dateAdded).toDateString() === todayDate;
-                    if (isAddedToday || task.isToday) tCount++;
+                    if (task.isToday) tCount++;
                     if (task.priority) iCount++;
                     allTasksCount++;
                 }
@@ -410,10 +388,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderSidebar() {
-        // Main Nav Listeners
         const navItems = [
             { id: 'nav-today', name: 'Today', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>' },
-            { id: 'nav-important', name: 'Important', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>' },
+            { id: 'nav-important', name: 'Important', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>' },
             { id: 'nav-tasks', name: 'Tasks', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>' }
         ];
 
@@ -421,7 +398,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const el = document.getElementById(item.id);
             if (el) {
                 el.classList.toggle('active', currentList === item.name);
-                // Dynamically update icon
                 const iconContainer = el.querySelector('svg') || el;
                 if (el.querySelector('svg')) {
                     el.querySelector('svg').outerHTML = item.icon;
@@ -469,13 +445,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Delete List
             navItem.querySelector('.delete-list-btn').onclick = (e) => {
                 e.stopPropagation();
                 if (confirm(`'${listName}' 페이지를 삭제하시겠습니까?`)) {
                     delete tasks[listName];
                     if (currentList === listName) {
-                        currentList = Object.keys(tasks)[0] || 'Daily Memo';
+                        currentList = Object.keys(tasks)[0] || '생활관리';
                         if (!tasks[currentList]) tasks[currentList] = [];
                     }
                     saveTasks();
@@ -483,7 +458,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             };
 
-            // Rename List
             navItem.querySelector('.rename-list-btn').onclick = (e) => {
                 e.stopPropagation();
                 const newName = prompt("새로운 페이지 이름을 입력하세요:", listName);
@@ -517,11 +491,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function addTodo() {
         const text = input.value.trim();
         if (text) {
-            // If in filter mode, add to the first list available or a default list
             let listToAddTo = currentList;
             const filterLists = ['Today', 'Important'];
             if (filterLists.includes(currentList)) {
-                listToAddTo = Object.keys(tasks)[0] || 'Daily Memo';
+                listToAddTo = Object.keys(tasks)[0] || '생활관리';
             }
 
             if (!tasks[listToAddTo]) tasks[listToAddTo] = [];
@@ -543,12 +516,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Input handlers
     const addIcon = document.querySelector('.add-icon');
     if (addIcon) addIcon.addEventListener('click', addTodo);
     input.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTodo(); });
 
-    // New List Modal
     const newListBtn = document.getElementById('new-list-btn');
     const modalContainer = document.getElementById('modal-container');
     const modalInput = document.getElementById('modal-input');
@@ -585,7 +556,6 @@ document.addEventListener('DOMContentLoaded', () => {
     modalInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleCreateList(); });
     modalContainer.addEventListener('click', (e) => { if (e.target === modalContainer) closeModal(); });
 
-    // Search Handler
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             searchQuery = e.target.value.trim();
@@ -593,20 +563,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Reset Handler
     const navReset = document.getElementById('nav-reset');
     if (navReset) {
         navReset.addEventListener('click', (e) => {
             e.preventDefault();
-            if (confirm('정말로 모든 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-                localStorage.removeItem('todoTasks');
-                localStorage.removeItem('currentList');
+            if (confirm('정말로 모든 할 일을 비우고 기본 목록(생활관리, 일/학업, 자기 돌봄)으로 초기화하시겠습니까?')) {
+                const defaultTasks = {
+                    '생활관리': [
+                        { text: '1. 장보기/ 필요한 물품 채우기', completed: false, dateAdded: new Date().toISOString() },
+                        { text: '2. 청소, 빨래, 쓰레기 버리기', completed: false, dateAdded: new Date().toISOString() },
+                        { text: '3. 은행 업무, 공과금 납부', completed: false, dateAdded: new Date().toISOString() }
+                    ],
+                    '일/학업': [
+                        { text: '1. 오늘 꼭 처리해야 할 업무 1~2개', completed: false, dateAdded: new Date().toISOString() },
+                        { text: '2. 마감일이 가까운 과제나 프로젝트', completed: false, dateAdded: new Date().toISOString() },
+                        { text: '3. 이메일/메신저 확인 및 답장', completed: false, dateAdded: new Date().toISOString() }
+                    ],
+                    '자기 돌봄': [
+                        { text: '1. 식사 챙기기 (특히 건강한 음식)', completed: false, dateAdded: new Date().toISOString() },
+                        { text: '2. 운동이나 스트레칭', completed: false, dateAdded: new Date().toISOString() },
+                        { text: '3. 충분한 휴식, 수면', completed: false, dateAdded: new Date().toISOString() },
+                        { text: '4. 독서나 취미 활동', completed: false, dateAdded: new Date().toISOString() }
+                    ]
+                };
+                localStorage.setItem('todoTasks', JSON.stringify(defaultTasks));
+                localStorage.setItem('currentList', '생활관리');
                 location.reload();
             }
         });
     }
 
-    // Initial Render
     renderSidebar();
     renderTasks();
     headerTitle.textContent = currentList;

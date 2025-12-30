@@ -24,15 +24,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // State Management
+    // State Management
     let currentList = 'My To-Do List';
-    // Tasks object: { 'ListName': [ { text: '...', completed: false } ] }
-    let tasks = {
-        'My To-Do List': [
-            { text: "Buy groceries", completed: false },
-            { text: "Walk the dog", completed: false },
-            { text: "Complete the project", completed: false }
-        ]
-    };
+
+    function saveTasks() {
+        localStorage.setItem('todoTasks', JSON.stringify(tasks));
+    }
+
+    function loadTasks() {
+        const saved = localStorage.getItem('todoTasks');
+        return saved ? JSON.parse(saved) : {
+            'My To-Do List': [
+                { text: "Buy groceries", completed: false },
+                { text: "Walk the dog", completed: false },
+                { text: "Complete the project", completed: false }
+            ]
+        };
+    }
+
+    let tasks = loadTasks();
 
     function renderTasks() {
         todoList.innerHTML = ''; // Clear current view
@@ -66,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
             checkbox.addEventListener('change', () => {
                 task.completed = checkbox.checked;
                 li.classList.toggle('completed');
-                // Could save to localStorage here
+                saveTasks();
             });
 
             const span = document.createElement('span');
@@ -82,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
             deleteBtn.addEventListener('click', () => {
                 // Remove from state
                 tasks[currentList].splice(index, 1);
+                saveTasks();
                 // Re-render to update indices
                 renderTasks();
             });
@@ -118,6 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tasks[currentList] = [];
         }
         tasks[currentList].push({ text: text, completed: false });
+        saveTasks();
         renderTasks();
 
         // Scroll to bottom
@@ -160,6 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (listName && !tasks[listName]) {
                 // Initialize empty list
                 tasks[listName] = [];
+                saveTasks();
 
                 const listsSection = document.querySelector('.lists-section');
                 const newLink = document.createElement('a');

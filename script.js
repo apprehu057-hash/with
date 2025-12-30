@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // State Management
     // State Management
-    let currentList = '하루 메모';
+    let currentList = 'Daily Memo';
 
     function saveTasks() {
         localStorage.setItem('todoTasks', JSON.stringify(tasks));
@@ -34,10 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadTasks() {
         const saved = localStorage.getItem('todoTasks');
         return saved ? JSON.parse(saved) : {
-            '하루 메모': [
-                { text: "식재료 사기", completed: false, priority: false },
-                { text: "강아지 산책시키기", completed: false, priority: false },
-                { text: "프로젝트 마무리하기", completed: false, priority: true }
+            'Daily Memo': [
+                { text: "Buy groceries", completed: false, priority: false },
+                { text: "Walk the dog", completed: false, priority: false },
+                { text: "Finish project", completed: false, priority: true }
             ]
         };
     }
@@ -47,9 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ensure default list exists if starting fresh or renamed
     if (!tasks[currentList]) {
         tasks[currentList] = [
-            { text: "식재료 사기", completed: false, priority: false },
-            { text: "강아지 산책시키기", completed: false, priority: false },
-            { text: "프로젝트 마무리하기", completed: false, priority: true }
+            { text: "Buy groceries", completed: false, priority: false },
+            { text: "Walk the dog", completed: false, priority: false },
+            { text: "Finish project", completed: false, priority: true }
         ];
         saveTasks();
     }

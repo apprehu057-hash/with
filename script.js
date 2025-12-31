@@ -5,15 +5,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.querySelector('.search-box input');
     let searchQuery = '';
 
-    // Mobile Menu Toggle
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    // Sidebar Toggle Logic
+    const toggleBtn = document.getElementById('sidebar-toggle-btn');
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
 
-    if (mobileMenuBtn) {
-        mobileMenuBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('active');
-            sidebarOverlay.classList.toggle('active');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                // Mobile: Toggle Overlay Mode
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('active');
+            } else {
+                // Desktop: Toggle Collapse Mode
+                sidebar.classList.toggle('collapsed');
+            }
         });
     }
 
@@ -346,6 +352,8 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (name === 'Today') document.getElementById('nav-today').classList.add('active');
         else if (name === 'Upcoming') document.getElementById('nav-upcoming').classList.add('active');
         else if (name === 'Important') document.getElementById('nav-important').classList.add('active');
+
+        updateMobileChips(name);
         // For project lists, the renderSidebarProjects handles the active class re-render
     }
 
@@ -354,6 +362,26 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('nav-today').onclick = () => switchList('Today');
     document.getElementById('nav-upcoming').onclick = () => switchList('Upcoming');
     document.getElementById('nav-important').onclick = () => switchList('Important');
+
+    // Mobile Filter Chips
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            const target = chip.getAttribute('data-target');
+            switchList(target);
+        });
+    });
+
+    function updateMobileChips(name) {
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            if (chip.getAttribute('data-target') === name) {
+                chip.classList.add('active');
+                // Optional: Scroll to active chip
+                chip.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            } else {
+                chip.classList.remove('active');
+            }
+        });
+    }
 
     // New List Logic
     const newListBtn = document.getElementById('new-list-btn');

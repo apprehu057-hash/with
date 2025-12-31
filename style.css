@@ -47,9 +47,7 @@ body {
     display: flex;
     flex-direction: column;
     padding: 30px 20px;
-    border-right: 1px solid transparent;
-    /* Cleaner look */
-    transition: transform 0.3s ease;
+    /* transition: transform 0.3s ease; - replaced by all 0.3s ease */
 }
 
 .user-profile {
@@ -424,6 +422,88 @@ body {
 }
 
 
+/* Mobile Filter Bar - Hidden by default */
+.mobile-filter-bar {
+    display: none;
+    gap: 10px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scrolling on iOS */
+    padding-bottom: 5px;
+    /* Space for scrollbar if visible */
+}
+
+/* Hide scrollbar */
+.mobile-filter-bar::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-chip {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: white;
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+    /* Prevent shrinking */
+    transition: all 0.2s;
+}
+
+.filter-chip.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    font-weight: 500;
+}
+
+
+/* Sidebar Toggle Button */
+.sidebar-toggle-btn {
+    display: block;
+    /* Visible on desktop too */
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    margin-right: 15px;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.sidebar-toggle-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: var(--text-primary);
+}
+
+/* Sidebar Styling Updates */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--bg-sidebar);
+    display: flex;
+    flex-direction: column;
+    padding: 30px 20px;
+    border-right: 1px solid transparent;
+    transition: all 0.3s ease;
+    /* Smooth transition for width/padding */
+    overflow: hidden;
+    /* Hide content when collapsed */
+    white-space: nowrap;
+    /* Prevent text wrapping */
+}
+
+/* Desktop Collapsed State */
+.sidebar.collapsed {
+    width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    opacity: 0;
+    border: none;
+}
+
 /* Mobile */
 @media (max-width: 768px) {
     .content {
@@ -436,20 +516,24 @@ body {
         height: 100%;
         z-index: 100;
         box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        /* Mobile ignores 'collapsed' class logic, handled by 'active' class */
+        width: 280px;
+    }
+
+    /* Reset collapsed state styles for mobile if they leak (though logic separates them) */
+    .sidebar.collapsed {
+        width: 280px;
+        padding: 30px 20px;
+        opacity: 1;
     }
 
     .sidebar.active {
         left: 0;
     }
 
-    .mobile-menu-btn {
-        display: block;
+    .mobile-filter-bar {
+        display: flex;
     }
-}
-
-.mobile-menu-btn {
-    display: none;
-    margin-right: 15px;
 }
 
 /* QR Code Section helper */

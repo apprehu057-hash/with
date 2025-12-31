@@ -1,905 +1,480 @@
 :root {
-    --bg-primary: #F9F9F7;
-    --paper-cream: rgba(253, 252, 240, 0.85);
-    --paper-line: #e8e6d1;
-    --text-primary: #2D2D2D;
-    --text-secondary: #5F6368;
-    --accent: #E6B905;
-    /* Mustard Yellow from image */
-    --accent-hover: #D4A904;
-    --accent-red: #e57373;
-    --border-gray: rgba(0, 0, 0, 0.05);
-    --notebook-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-    --glass-bg: rgba(255, 255, 255, 0.4);
+    --primary: #DC4C3E;
+    /* Todoist-like Red */
+    --primary-hover: #b03d32;
+    --text-primary: #202020;
+    --text-secondary: #808080;
+    --bg-body: #FAFAFA;
+    --bg-sidebar: #F7F7F5;
+    /* Light gray sidebar */
+    --bg-content: #FFFFFF;
+    --border-color: #f0f0f0;
+    --sidebar-width: 280px;
+    --danger: #e57373;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Quicksand', 'Gowun Dodum', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 body {
-    background-image: url('background.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    height: 100vh;
+    background-color: var(--bg-content);
+    color: var(--text-primary);
     display: flex;
-    align-items: center;
-    justify-content: center;
+    height: 100vh;
     overflow: hidden;
 }
 
-body::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 240, 0.1);
-    /* Soft warm overlay */
-    z-index: -1;
-}
-
+/* App Container - No more notebook container, just full screen layout */
 .app-container {
     display: flex;
-    width: 95%;
-    /* Maximized width */
-    max-width: 1400px;
-    /* Larger max-width */
-    height: 88vh;
-    background: var(--paper-cream);
-    border-radius: 5px 15px 15px 5px;
-    box-shadow: var(--notebook-shadow);
-    position: relative;
-    overflow: hidden;
-    margin-left: 40px;
-    /* Space for rings to overlap */
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-@keyframes textFloating {
-
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-5px);
-    }
-}
-
-/* Notebook Spiral Effect */
-.notebook-spiral {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 30px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    padding: 15px 0;
-    z-index: 1000;
-    pointer-events: none;
-    background: rgba(0, 0, 0, 0.05);
-    /* Subtle indentation area */
-}
-
-.ring {
-    width: 45px;
-    height: 12px;
-    background: linear-gradient(to bottom, #e0e0e0, #888, #e0e0e0);
-    border-radius: 10px;
-    margin-left: -55px;
-    /* Overlap the edge of wood and paper */
-    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
-    position: relative;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-content);
+    box-shadow: none;
+    border-radius: 0;
+    margin: 0;
+    border: none;
 }
 
 /* Sidebar Styling */
 .sidebar {
-    width: 280px;
-    background: rgba(255, 255, 255, 0.65);
-    /* Translucent */
-    backdrop-filter: blur(15px);
-    /* strong blur */
-    -webkit-backdrop-filter: blur(15px);
-    border-right: 1px solid rgba(255, 255, 255, 0.6);
-    /* Glass border */
+    width: var(--sidebar-width);
+    background-color: var(--bg-sidebar);
     display: flex;
     flex-direction: column;
-    padding: 30px 20px 30px 45px;
+    padding: 30px 20px;
+    border-right: 1px solid transparent;
+    /* Cleaner look */
+    transition: transform 0.3s ease;
 }
 
 .user-profile {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
+    padding: 0 10px;
 }
 
 .avatar {
-    width: 40px;
-    height: 40px;
-    background: #e9e5d0;
+    width: 32px;
+    height: 32px;
+    background: var(--primary);
+    color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--paper-line);
+    font-weight: bold;
+    font-size: 14px;
 }
 
 .user-info .name {
+    font-weight: 600;
+    font-size: 14px;
     display: block;
-    font-weight: 700;
-    font-size: 15px;
-    color: var(--text-primary);
 }
 
 .user-info .email {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-secondary);
 }
 
 .search-box {
-    position: relative;
-    margin-bottom: 25px;
-}
-
-.search-box svg {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-secondary);
+    margin-bottom: 20px;
+    padding: 0 10px;
 }
 
 .search-box input {
     width: 100%;
-    padding: 10px 10px 10px 40px;
-    border: 1px solid var(--paper-line);
+    padding: 8px 12px 8px 32px;
+    border: 1px solid transparent;
     border-radius: 6px;
-    background: rgba(255, 255, 255, 0.6);
+    background: rgba(0, 0, 0, 0.05);
     font-size: 13px;
     outline: none;
-    backdrop-filter: blur(5px);
+    transition: all 0.2s;
+}
+
+.search-box input:focus {
+    background: white;
+    border-color: #ddd;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.search-box svg {
+    position: absolute;
+    left: 20px;
+    /* adjusted for padding */
+    margin-top: 8px;
+    width: 16px;
+    height: 16px;
+    color: var(--text-secondary);
 }
 
 .nav-menu,
 .lists-section {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .section-title {
-    font-size: 11px;
-    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 600;
     color: var(--text-secondary);
-    letter-spacing: 1px;
-    margin-bottom: 12px;
-    font-weight: 700;
+    margin: 10px 10px 5px 10px;
 }
 
 .nav-item {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 8px 12px;
+    padding: 8px 10px;
     text-decoration: none;
     color: var(--text-primary);
     font-size: 14px;
-    font-weight: 500;
-    border-radius: 6px;
-    transition: all 0.2s;
-    margin-bottom: 2px;
+    border-radius: 5px;
+    transition: background 0.1s;
 }
 
 .nav-item:hover {
-    background: rgba(0, 0, 0, 0.04);
+    background: rgba(0, 0, 0, 0.05);
 }
 
 .nav-item.active {
-    background: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    color: var(--accent);
-    border: 1px solid var(--paper-line);
+    background: rgba(220, 76, 62, 0.1);
+    /* Slight red tint */
+    color: var(--primary);
+    font-weight: 500;
 }
 
 .nav-item svg {
-    flex-shrink: 0;
+    color: var(--text-secondary);
+    transition: color 0.1s;
 }
 
 .nav-item.active svg {
-    color: var(--accent);
-}
-
-.nav-item .list-actions {
-    display: none;
-    gap: 5px;
-    margin-left: auto;
-}
-
-.nav-item:hover .list-actions {
-    display: flex;
-}
-
-.nav-item .list-actions button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--text-secondary);
-    padding: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s;
-}
-
-.nav-item .list-actions button:hover {
-    color: var(--accent);
+    color: var(--primary);
 }
 
 .nav-item .count {
     margin-left: auto;
-    font-size: 10px;
-    background: #e9e5d0;
-    padding: 1px 6px;
-    border-radius: 8px;
+    font-size: 12px;
     color: var(--text-secondary);
 }
 
-/* New List Button in Sidebar */
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 20px;
+}
+
 #new-list-btn {
     width: 100%;
-    padding: 10px;
-    background: white;
-    border: 1px solid var(--paper-line);
-    border-radius: 8px;
+    padding: 8px;
+    background: transparent;
+    border: none;
     color: var(--text-secondary);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
+    font-size: 14px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    gap: 8px;
+    cursor: pointer;
+    border-radius: 5px;
 }
 
 #new-list-btn:hover {
-    background: var(--paper-cream);
-    color: var(--accent);
-    border-color: var(--accent);
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-primary);
 }
 
-/* Main Content Area */
-/* Main Content Area */
+
+/* Main Content */
 .content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 10px 20px;
-    /* Minimal padding to let card fill space */
-    background: transparent;
-    /* Removed lines from here */
-    position: relative;
-    overflow: hidden;
-    /* Prevent double scroll */
-}
-
-/* New White Card Container */
-/* New White Card Container */
-.paper-card {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: rgba(255, 255, 255, 0.75);
-    /* Translucent white */
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    border-radius: 20px;
-    box-shadow:
-        0 8px 32px 0 rgba(31, 38, 135, 0.1),
-        /* Deep gentle shadow */
-        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-    /* Inner light */
-    position: relative;
-    overflow: hidden;
-
-    /* Lined Paper Effect RESTORED for continuous look */
-    background-image: linear-gradient(transparent 35px, var(--paper-line) 1px);
-    background-size: 100% 36px;
-    background-attachment: local;
-}
-
-#list-title {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--text-primary);
-
-    /* Enforce exact height multiple of 36px for grid alignment */
-    height: 72px;
-    /* 36px * 2 */
-    display: flex;
-    align-items: flex-end;
-    /* Align text to bottom of the 2nd line */
-    padding: 0 50px 10px 50px;
-    /* Adjust padding to fit */
-    box-sizing: border-box;
-
-    margin: 0;
-    z-index: 2;
-}
-
-/* The vertical "margin" line on the left of lined paper */
-.paper-card::before {
-    content: '';
-    position: absolute;
-    left: 40px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: rgba(229, 115, 115, 0.3);
-    z-index: 0;
-    pointer-events: none;
+    padding: 40px 50px;
+    max-width: 900px;
+    margin: 0 auto;
+    /* Center content */
 }
 
 .main-header {
-    margin-bottom: 20px;
-    padding-left: 0;
-    /* Align with card edge roughly or center? Keep left aligned */
     display: flex;
     align-items: center;
-    gap: 15px;
-}
-
-.mobile-menu-btn {
-    display: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--text-primary);
-    padding: 5px;
+    justify-content: space-between;
+    margin-bottom: 30px;
 }
 
 .header-titles h1 {
-    font-size: 36px;
-    font-weight: 800;
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    color: #222;
-    /* Fallback */
-    letter-spacing: -1px;
-    display: inline-block;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
 }
 
+/* Paper Card Removed - using transparent container */
+.paper-card {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.paper-card::before {
+    display: none;
+}
+
+/* Remove red line */
+
+#list-title {
+    display: none;
+    /* Already in header-titles */
+}
+
+/* Task List */
 .task-list-container {
     flex: 1;
     overflow-y: auto;
-    padding: 0 50px 0 50px;
-    /* Reset top padding to 0 for background alignment */
-    z-index: 1;
-    /* Ensure above red line */
-
-    /* Background removed from here, relying on parent .paper-card */
 }
 
 #todo-list {
     list-style: none;
-    margin: 0;
-    padding: 0;
 }
 
 #todo-list li {
     display: flex;
-    align-items: flex-end;
-    /* Align items to bottom */
+    align-items: center;
     justify-content: space-between;
-    height: 36px;
-    /* Exact match with background line height */
-    padding: 0 10px 2px 10px;
-    /* Add bottom padding to sit on the line */
-    transition: background 0.2s, opacity 0.3s, transform 0.3s;
-    animation: slideIn 0.3s ease-out;
-}
-
-#todo-list li.removing {
-    opacity: 0;
-    transform: translateX(20px);
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-#todo-list li.empty-state {
-    justify-content: center;
-    border-bottom: none;
-    height: 100px;
-}
-
-#todo-list li.empty-state .text {
-    font-size: 20px;
-    color: var(--text-secondary);
-    font-weight: 600;
-    font-style: italic;
-    opacity: 0;
-    animation: fadeIn 1.5s forwards;
-    pointer-events: none;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(5px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.2s;
 }
 
 #todo-list li:hover {
-    background: rgba(0, 0, 0, 0.01);
+    /* No bg change, maybe edit icon appears */
 }
 
-#todo-list li.completed .task-text {
-    text-decoration: line-through;
-    color: var(--text-secondary);
-    opacity: 0.5;
-    transition: all 0.3s;
-}
-
-#todo-list li.completed .custom-checkbox {
-    border-color: var(--accent);
-    background: var(--accent);
-}
-
-#todo-list li.completed .custom-checkbox:checked::after {
-    color: white;
-}
-
-.left-content {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex: 1;
-    min-width: 0;
-    /* Crucial for text truncation in flex child */
-}
-
-/* Custom Square Checkbox */
+/* Custom Checkbox - Circle */
 .custom-checkbox {
     appearance: none;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #444;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #888;
+    border-radius: 50%;
+    /* Circle */
     cursor: pointer;
-    background: white;
+    margin-right: 12px;
     position: relative;
-    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.custom-checkbox:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.custom-checkbox:checked {
+    background: var(--text-secondary);
+    border-color: var(--text-secondary);
 }
 
 .custom-checkbox:checked::after {
-    content: 'X';
+    content: '✓';
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 14px;
-    font-weight: 800;
-    color: #444;
+    font-size: 12px;
+    color: white;
 }
 
 .task-text {
-    font-size: 17px;
-    color: #333;
-    font-weight: 500;
-    line-height: 36px;
-    /* Match background line spacing */
-
-    /* Text Truncation */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-
-    /* Flex child properties for proper shrinking */
     flex: 1;
-    min-width: 0;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.completed .task-text {
+    text-decoration: line-through;
+    color: var(--text-secondary);
+}
+
+/* Action Buttons */
+.actions-div {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+#todo-list li:hover .actions-div {
+    opacity: 1;
 }
 
 .priority-btn,
 .today-btn,
-.delete-btn,
-.edit-btn {
-    background: none;
+.time-btn,
+.edit-btn,
+.delete-btn {
+    opacity: 0.6;
+    padding: 4px;
+    margin-left: 4px;
+    background: transparent;
     border: none;
     cursor: pointer;
-    padding: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 6px;
     color: var(--text-secondary);
 }
 
-.priority-btn,
-.today-btn {
-    opacity: 0.3;
-}
-
 .priority-btn:hover,
-.today-btn:hover {
-    opacity: 0.8;
-    background: rgba(0, 0, 0, 0.05);
-}
-
-.today-btn.active {
-    color: #FF9800;
-    /* Today Orange */
-    opacity: 1;
-}
-
-.priority-btn.active {
-    color: #FBC02D;
-    /* Important Yellow */
-    opacity: 1;
-}
-
-.delete-btn,
-.edit-btn {
-    opacity: 0;
-    transform: scale(0.9);
-}
-
-#todo-list li:hover .delete-btn,
-#todo-list li:hover .edit-btn {
-    opacity: 0.6;
-    transform: scale(1);
-}
-
-#todo-list li:hover .delete-btn:hover,
-#todo-list li:hover .edit-btn:hover {
-    opacity: 1;
-    background: rgba(0, 0, 0, 0.05);
-}
-
+.today-btn:hover,
+.time-btn:hover,
+.edit-btn:hover,
 .delete-btn:hover {
-    color: #e57373;
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
 }
 
-/* Input Area - Looks like a handwritten entry line */
+.priority-btn.active svg {
+    fill: #fbc02d;
+    color: #fbc02d;
+}
+
+.today-btn.active svg {
+    fill: #246fe0;
+    color: #246fe0;
+}
+
+
+/* Input Area */
 .input-area-wrapper {
-    margin-top: 15px;
-    padding: 15px 50px 20px 50px;
-    /* Match side padding, add bottom padding for card */
+    margin-top: 20px;
+    padding: 0;
 }
 
 .input-area {
     display: flex;
     align-items: center;
-    gap: 15px;
-    background: rgba(255, 255, 255, 0.7);
-    padding: 12px 20px;
+    gap: 10px;
+    padding: 10px 0;
     border-radius: 8px;
-    border: 1px solid var(--paper-line);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    backdrop-filter: blur(5px);
+    cursor: text;
+}
+
+.input-area:hover {
+    background: none;
+}
+
+.input-area:focus-within {
+    /* Maybe a ring? */
 }
 
 .add-icon {
-    width: 32px;
-    height: 32px;
-    background: var(--text-primary);
-    color: white;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    color: var(--primary);
     border: none;
-    border-radius: 4px;
-    font-size: 22px;
-    font-weight: bold;
+    font-size: 24px;
+    font-weight: 300;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-icon:hover {
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
 }
 
 .input-area input {
     flex: 1;
     border: none;
     outline: none;
-    font-size: 16px;
+    font-size: 14px;
     background: transparent;
 }
 
-/* Custom Modal - Note Card Style */
+
+/* Modal */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(2px);
     display: none;
-    align-items: center;
     justify-content: center;
-    z-index: 5000;
-}
-
-.modal-overlay.active {
-    display: flex;
+    align-items: center;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.5);
 }
 
 .modal-content {
-    background: white;
-    padding: 35px;
-    border-radius: 4px;
-    box-shadow: 10px 10px 40px rgba(0, 0, 0, 0.2);
-    width: 90%;
-    max-width: 380px;
-    border: 1px solid #ddd;
-    transform: rotate(1deg);
-    /* Skewed like a floating card */
-}
-
-.modal-content h3 {
-    margin-bottom: 20px;
-    font-weight: 700;
-    color: #333;
-}
-
-#modal-input {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--paper-line);
-    margin-bottom: 25px;
-    outline: none;
-}
-
-.modal-actions {
-    display: flex;
-    gap: 12px;
-}
-
-.modal-btn {
-    flex: 1;
-    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transform: none;
+    /* No rotation */
     border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 14px;
+    max-width: 400px;
 }
 
-.modal-btn.primary {
-    background: #333;
-    color: white;
-}
 
-.modal-btn.secondary {
-    background: #f0f0f0;
-    color: #666;
-}
-
-/* Time (AM/PM) Button Styles */
-.time-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #ccc;
-    padding: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    font-size: 11px;
-    font-weight: 700;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-}
-
-.time-btn.am {
-    color: #3b82f6;
-    /* Blue for AM */
-    background-color: rgba(59, 130, 246, 0.1);
-}
-
-.time-btn.pm {
-    color: #f97316;
-    /* Orange for PM */
-    background-color: rgba(249, 115, 22, 0.1);
-}
-
-.time-btn:hover {
-    color: #888;
-    background-color: rgba(0, 0, 0, 0.05);
-}
-
-.time-btn.am:hover {
-    color: #2563eb;
-    background-color: rgba(59, 130, 246, 0.2);
-}
-
-.time-btn.pm:hover {
-    color: #ea580c;
-    background-color: rgba(249, 115, 22, 0.2);
-}
-
-.time-btn.eve {
-    color: #8b5cf6;
-    /* Purple for Eve */
-    background-color: rgba(139, 92, 246, 0.1);
-}
-
-.time-btn.eve:hover {
-    color: #7c3aed;
-    background-color: rgba(139, 92, 246, 0.2);
-}
-
-/* Ensure SVG inside fits nicely */
-.time-btn svg {
-    width: 16px;
-    height: 16px;
-}
-
-/* Mobile Responsiveness */
-/* Mobile Responsiveness - Trigger earlier for tablets/narrow desktops */
-@media (max-width: 1024px) {
-    body {
-        background-image: var(--bg-wood);
-        background-attachment: scroll;
-        /* Better for mobile performance */
-        padding: 15px 10px 15px 25px;
-        /* Leave space for wood and rings */
-    }
-
-    .app-container {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        border-radius: 8px;
-        /* Give it some corner on mobile too */
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+/* Mobile */
+@media (max-width: 768px) {
+    .content {
+        padding: 20px;
     }
 
     .sidebar {
         position: fixed;
         left: -100%;
-        top: 0;
-        bottom: 0;
-        z-index: 2000;
-        transition: left 0.3s ease;
-        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
-        padding-left: 20px;
+        height: 100%;
+        z-index: 100;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     }
 
     .sidebar.active {
         left: 0;
     }
 
-    .sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.3);
-        backdrop-filter: blur(2px);
-        z-index: 1500;
-        display: none;
-    }
-
-    .sidebar-overlay.active {
-        display: block;
-    }
-
     .mobile-menu-btn {
         display: block;
     }
+}
 
-    .notebook-spiral {
-        display: flex;
-        width: 20px;
-        padding: 10px 0;
-    }
+.mobile-menu-btn {
+    display: none;
+    margin-right: 15px;
+}
 
-    .ring {
-        width: 30px;
-        height: 8px;
-        margin-left: -40px;
-        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    }
+/* QR Code Section helper */
+.qr-section {
+    margin-top: 10px;
+    padding: 10px;
+    background: var(--bg-body);
+    border-radius: 8px;
+    text-align: center;
+}
 
-    .paper-card {
-        padding: 0;
-        /* Let container handle padding */
-    }
+.qr-section p {
+    font-size: 11px;
+    margin-bottom: 5px;
+    color: var(--text-secondary);
+}
 
-    .paper-card::before {
-        left: 25px;
-        /* Adjust red line for mobile */
-    }
-
-    .task-list-container {
-        padding: 10px 20px 0 35px;
-        /* Adjust list padding for mobile red line */
-    }
-
-    .input-area-wrapper {
-        padding: 15px 20px 20px 35px;
-        /* Adjust input padding for mobile */
-    }
-
-    .header-titles h1 {
-        font-size: 28px;
-    }
-
-    /* Mobile Task List Adjustments */
-    /* Mobile Task List Adjustments */
-    .task-text {
-        font-size: 14px !important;
-        line-height: normal !important;
-        /* Allow flex-end to align text to bottom */
-    }
-
-    .priority-btn,
-    .today-btn,
-    .time-btn,
-    .delete-btn,
-    .edit-btn {
-        padding: 3px !important;
-    }
-
-    .priority-btn svg,
-    .today-btn svg,
-    .time-btn svg,
-    .delete-btn svg,
-    .edit-btn svg {
-        width: 14px !important;
-        height: 14px !important;
-    }
-
-    .custom-checkbox {
-        width: 16px !important;
-        height: 16px !important;
-    }
-
-    .custom-checkbox:checked::after {
-        font-size: 12px !important;
-    }
-
-    .left-content {
-        gap: 8px !important;
-    }
-
-    .actions-div {
-        gap: 3px !important;
-    }
-
-    #todo-list li {
-        height: 32px !important;
-        padding: 0 5px 2px 5px !important;
-    }
-
-    .content {
-        background-size: 100% 32px !important;
-        background-image: linear-gradient(transparent 31px, var(--paper-line) 1px) !important;
-    }
+.qr-placeholder {
+    width: 80px;
+    height: 80px;
+    background: #ddd;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #888;
 }

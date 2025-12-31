@@ -1,8 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('todo-input');
     const todoList = document.getElementById('todo-list');
-    const headerTitle = document.getElementById('list-title');
-    const taskCountSpan = document.getElementById('task-count');
+    const headerTitle = document.getElementById('header-title');
     const searchInput = document.querySelector('.search-box input');
     let searchQuery = '';
 
@@ -26,52 +25,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- State Management ---
-    let currentList = localStorage.getItem('currentList') || '생활관리';
+    // Default list is now 'Inbox'
+    let currentList = localStorage.getItem('currentList') || 'Inbox';
 
     function loadTasks() {
         const saved = localStorage.getItem('todoTasks');
         return saved ? JSON.parse(saved) : {
-            '생활관리': [
-                { text: '1. 장보기/ 필요한 물품 채우기', completed: false, dateAdded: new Date().toISOString() },
-                { text: '2. 청소, 빨래, 쓰레기 버리기', completed: false, dateAdded: new Date().toISOString() },
-                { text: '3. 은행 업무, 공과금 납부', completed: false, dateAdded: new Date().toISOString() }
+            'Inbox': [
+                { id: 1, text: 'Welcome to your new Inbox', completed: false, dateAdded: new Date().toISOString(), isToday: true, priority: false },
+                { id: 2, text: 'Try adding a task below', completed: false, dateAdded: new Date().toISOString(), isToday: false, priority: false }
             ],
-            '일/학업': [
-                { text: '1. 오늘 꼭 처리해야 할 업무 1~2개', completed: false, dateAdded: new Date().toISOString() },
-                { text: '2. 마감일이 가까운 과제나 프로젝트', completed: false, dateAdded: new Date().toISOString() },
-                { text: '3. 이메일/메신저 확인 및 답장', completed: false, dateAdded: new Date().toISOString() }
-            ],
-            '자기 돌봄': [
-                { text: '1. 식사 챙기기 (특히 건강한 음식)', completed: false, dateAdded: new Date().toISOString() },
-                { text: '2. 운동이나 스트레칭', completed: false, dateAdded: new Date().toISOString() },
-                { text: '3. 충분한 휴식, 수면', completed: false, dateAdded: new Date().toISOString() },
-                { text: '4. 독서나 취미 활동', completed: false, dateAdded: new Date().toISOString() }
-            ]
+            'Personal': [],
+            'Work': []
         };
     }
 
     let tasks = loadTasks();
+
+    // Migrating old data structure if needed (simple check)
+    if (!tasks['Inbox'] && tasks['생활관리']) {
+        // Assume migration needed or just fresh start for Inbox structure
+        // For now, let's keep it simple. If 'Inbox' doesn't exist, Create it.
+        tasks['Inbox'] = [];
+    }
 
     function saveTasks() {
         localStorage.setItem('todoTasks', JSON.stringify(tasks));
         localStorage.setItem('currentList', currentList);
     }
 
-    // Ensure currentList is valid, otherwise fallback
-    if (!tasks[currentList]) {
-        currentList = Object.keys(tasks)[0] || '생활관리';
-        if (!tasks[currentList]) {
-            tasks[currentList] = [];
-        }
-    }
-
     function renderTasks() {
         todoList.innerHTML = '';
         let currentTasks = [];
-        let isFilterMode = false;
+        const isSearch = !!searchQuery;
 
-        if (searchQuery) {
-            isFilterMode = true;
+        if (isSearch) {
             Object.keys(tasks).forEach(listName => {
                 tasks[listName].forEach(task => {
                     if (task.text.toLowerCase().includes(searchQuery.toLowerCase())) {
@@ -79,521 +67,346 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             });
-        } else if (currentList === 'Today') {
-            isFilterMode = true;
-            const today = new Date().toDateString();
-            Object.keys(tasks).forEach(listName => {
-                tasks[listName].forEach(task => {
-                    if (task.isToday) {
-                        currentTasks.push({ ...task, originalList: listName });
-                    }
-                });
-            });
-        } else if (currentList === 'Important') {
-            isFilterMode = true;
-            Object.values(tasks).forEach(listTasks => {
-                listTasks.forEach(task => {
-                    if (task.priority) {
-                        currentTasks.push(task);
-                    }
-                });
-            });
-        } else if (currentList === 'Tasks') {
-            isFilterMode = true;
-            Object.keys(tasks).forEach(listName => {
-                tasks[listName].forEach(task => {
-                    currentTasks.push({ ...task, originalList: listName });
-                });
-            });
+            headerTitle.textContent = `검색 결과: "${searchQuery}"`;
         } else {
-            currentTasks = tasks[currentList] || [];
+            // Special Views
+            if (currentList === 'Today') {
+                const todayStr = new Date().toDateString();
+                Object.keys(tasks).forEach(listName => {
+                    tasks[listName].forEach(task => {
+                        // Check isToday flag OR duplicate check based on date if we had date picker
+                        if (task.isToday) {
+                            currentTasks.push({ ...task, originalList: listName });
+                        }
+                    });
+                });
+                headerTitle.textContent = '오늘 할 일 (Today)';
+            } else if (currentList === 'Upcoming') {
+                // Mockup logic for Upcoming since we don't have full dates yet
+                // Showing all tasks for now or just random ones to demonstrate
+                Object.keys(tasks).forEach(listName => {
+                    tasks[listName].forEach(task => {
+                        if (!task.completed) {
+                            currentTasks.push({ ...task, originalList: listName });
+                        }
+                    });
+                });
+                headerTitle.textContent = '준비 (Upcoming)';
+            } else if (currentList === 'Important') {
+                Object.keys(tasks).forEach(listName => {
+                    tasks[listName].forEach(task => {
+                        if (task.priority) {
+                            currentTasks.push({ ...task, originalList: listName });
+                        }
+                    });
+                });
+                headerTitle.textContent = '중요';
+            } else {
+                // Standard List (Inbox, Projects)
+                if (!tasks[currentList]) tasks[currentList] = [];
+                currentTasks = tasks[currentList];
+                headerTitle.textContent = currentList === 'Inbox' ? '관리함 (Inbox)' : currentList;
+            }
         }
 
         if (currentTasks.length === 0) {
             todoList.innerHTML = `
-                <li class="empty-state">
-                    <div class="text">${searchQuery ? `'${searchQuery}'에 대한 검색 결과가 없습니다` : '이제 쉬어가기'}</div>
+                <li style="justify-content:center; border:none; color:#aaa; margin-top:50px;">
+                    ${isSearch ? '검색 결과가 없습니다.' : '할 일이 없습니다.'}
                 </li>
             `;
-            updateMainFilterCounts();
+            updateCounts();
             return;
         }
 
-        headerTitle.textContent = searchQuery ? `Search: ${searchQuery}` : currentList;
+        // Sort: Active first, then by ID (newest last usually, or push order)
+        // Simple sort: Completed last
+        currentTasks.sort((a, b) => a.completed - b.completed);
 
-        const sortedTasks = [...currentTasks].sort((a, b) => (b.priority === true) - (a.priority === true));
-
-        sortedTasks.forEach((task) => {
+        currentTasks.forEach((task) => {
             const li = document.createElement('li');
             if (task.completed) li.classList.add('completed');
-
-            const leftContent = document.createElement('div');
-            leftContent.classList.add('left-content');
 
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.checked = task.completed;
             checkbox.classList.add('custom-checkbox');
             checkbox.addEventListener('change', () => {
-                task.completed = checkbox.checked;
-                li.classList.toggle('completed');
-
-                if (task.completed) {
-                    starBtn.disabled = true;
-                    todayBtn.disabled = true;
-                    timeBtn.disabled = true;
-                    starBtn.style.opacity = '0.3';
-                    todayBtn.style.opacity = '0.3';
-                    timeBtn.style.opacity = '0.3';
-                    starBtn.style.cursor = 'not-allowed';
-                    todayBtn.style.cursor = 'not-allowed';
-                    timeBtn.style.cursor = 'not-allowed';
-                } else {
-                    starBtn.disabled = false;
-                    todayBtn.disabled = false;
-                    timeBtn.disabled = false;
-                    starBtn.style.opacity = '';
-                    todayBtn.style.opacity = '';
-                    timeBtn.style.opacity = '';
-                    starBtn.style.cursor = 'pointer';
-                    todayBtn.style.cursor = 'pointer';
-                    timeBtn.style.cursor = 'pointer';
+                // Find actual task ref if in special view
+                const realTask = findTaskRef(task);
+                if (realTask) {
+                    realTask.completed = checkbox.checked;
+                    saveTasks();
+                    renderTasks(); // Re-render to sort/update styling
+                    updateCounts();
                 }
-
-                saveTasks();
-                updateMainFilterCounts();
             });
 
             const span = document.createElement('span');
             span.textContent = task.text;
             span.classList.add('task-text');
-
-            const starBtn = document.createElement('button');
-            starBtn.className = `priority-btn ${task.priority ? 'active' : ''}`;
-            starBtn.title = "Mark as Important";
-            starBtn.innerHTML = `
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="${task.priority ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                </svg>
-            `;
-            starBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (task.completed) return;
-                task.priority = !task.priority;
-                if (task.priority) {
-                    starBtn.classList.add('active');
-                    starBtn.querySelector('svg').setAttribute('fill', 'currentColor');
-                } else {
-                    starBtn.classList.remove('active');
-                    starBtn.querySelector('svg').setAttribute('fill', 'none');
-                }
-                saveTasks();
-                updateMainFilterCounts();
-            });
-
-            const todayBtn = document.createElement('button');
-            todayBtn.className = `today-btn ${task.isToday ? 'active' : ''}`;
-            todayBtn.title = "Add to Today";
-            todayBtn.innerHTML = `
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="${task.isToday ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-                </svg>
-            `;
-            todayBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (task.completed) return;
-                task.isToday = !task.isToday;
-                if (task.isToday) {
-                    todayBtn.classList.add('active');
-                    todayBtn.querySelector('svg').setAttribute('fill', 'currentColor');
-                } else {
-                    todayBtn.classList.remove('active');
-                    todayBtn.querySelector('svg').setAttribute('fill', 'none');
-                }
-                saveTasks();
-                updateMainFilterCounts();
-            });
-
-            const timeBtn = document.createElement('button');
-            const getTimeContent = (amPm) => {
-                if (amPm === 'AM') return 'AM';
-                if (amPm === 'PM') return 'PM';
-                if (amPm === 'Eve') return 'Eve';
-                return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>`;
-            };
-
-            timeBtn.className = `time-btn ${task.amPm ? task.amPm.toLowerCase() : ''}`;
-            timeBtn.title = "Set Time (AM/PM/Eve)";
-            timeBtn.innerHTML = getTimeContent(task.amPm);
-
-            if (task.completed) {
-                timeBtn.disabled = true;
-                timeBtn.style.opacity = '0.3';
-                timeBtn.style.cursor = 'not-allowed';
-            }
-
-            timeBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (task.completed) return;
-
-                if (!task.amPm) {
-                    task.amPm = 'AM';
-                } else if (task.amPm === 'AM') {
-                    task.amPm = 'PM';
-                } else if (task.amPm === 'PM') {
-                    task.amPm = 'Eve';
-                } else {
-                    task.amPm = null;
-                }
-
-                timeBtn.className = `time-btn ${task.amPm ? task.amPm.toLowerCase() : ''}`;
-                timeBtn.innerHTML = getTimeContent(task.amPm);
-                saveTasks();
-            });
-
-            const editBtn = document.createElement('button');
-            editBtn.innerHTML = `
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                </svg>
-            `;
-            editBtn.className = 'edit-btn';
-            editBtn.title = "Edit Task";
-            editBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const editInput = document.createElement('input');
-                editInput.type = 'text';
-                editInput.value = task.text;
-                editInput.className = 'edit-input';
-
-                const saveEdit = () => {
-                    const newText = editInput.value.trim();
-                    if (newText) {
-                        task.text = newText;
+            // Allow editing text on click
+            span.addEventListener('click', () => {
+                const newText = prompt("할 일 수정:", task.text);
+                if (newText !== null) {
+                    const realTask = findTaskRef(task);
+                    if (realTask) {
+                        realTask.text = newText || realTask.text;
                         saveTasks();
                         renderTasks();
-                    } else {
-                        renderTasks();
                     }
-                };
-
-                editInput.addEventListener('keypress', (ev) => { if (ev.key === 'Enter') saveEdit(); });
-                editInput.addEventListener('blur', saveEdit);
-                leftContent.replaceChild(editInput, span);
-                editInput.focus();
+                }
             });
 
-            leftContent.appendChild(checkbox);
-            leftContent.appendChild(span);
-
-            if (task.completed) {
-                starBtn.disabled = true;
-                todayBtn.disabled = true;
-                starBtn.style.opacity = '0.3';
-                todayBtn.style.opacity = '0.3';
-                starBtn.style.cursor = 'not-allowed';
-                todayBtn.style.cursor = 'not-allowed';
-            }
-
+            // Meta/Actions
             const actionsDiv = document.createElement('div');
             actionsDiv.className = 'actions-div';
             actionsDiv.style.display = 'flex';
-            actionsDiv.style.alignItems = 'center';
-            actionsDiv.style.gap = '8px';
 
+            // Priority Button
+            const priorityBtn = document.createElement('button');
+            priorityBtn.className = `priority-btn ${task.priority ? 'active' : ''}`;
+            priorityBtn.innerHTML = todoIcons.star;
+            priorityBtn.title = "중요 표시";
+            priorityBtn.onclick = (e) => {
+                e.stopPropagation();
+                const realTask = findTaskRef(task);
+                if (realTask) {
+                    realTask.priority = !realTask.priority;
+                    saveTasks();
+                    renderTasks();
+                    updateCounts();
+                }
+            };
+
+            // Today Button (Sun)
+            const todayBtn = document.createElement('button');
+            todayBtn.className = `today-btn ${task.isToday ? 'active' : ''}`;
+            todayBtn.innerHTML = todoIcons.sun; // Using sun icon for Today
+            todayBtn.title = "오늘 할 일에 추가";
+            todayBtn.onclick = (e) => {
+                e.stopPropagation();
+                const realTask = findTaskRef(task);
+                if (realTask) {
+                    realTask.isToday = !realTask.isToday;
+                    saveTasks();
+                    renderTasks();
+                    updateCounts();
+                }
+            };
+
+            // Delete Button
             const deleteBtn = document.createElement('button');
-            deleteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
-            deleteBtn.classList.add('delete-btn');
-            deleteBtn.addEventListener('click', () => {
-                li.classList.add('removing');
-                setTimeout(() => {
-                    const listName = task.originalList || Object.keys(tasks).find(ln => tasks[ln].includes(task));
-                    const listTasks = tasks[listName];
-                    const idx = listTasks.indexOf(task);
-                    if (idx > -1) {
-                        listTasks.splice(idx, 1);
-                        saveTasks();
-                        renderTasks();
-                        renderSidebar();
-                    }
-                }, 300);
-            });
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = todoIcons.trash;
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                if (confirm("이 작업을 삭제하시겠습니까?")) {
+                    deleteTask(task);
+                }
+            };
 
-            actionsDiv.appendChild(starBtn);
-            actionsDiv.appendChild(todayBtn);
-            actionsDiv.appendChild(timeBtn);
-            actionsDiv.appendChild(editBtn);
-            actionsDiv.appendChild(deleteBtn);
-            li.appendChild(leftContent);
-            li.appendChild(actionsDiv);
-
-            if (searchQuery || currentList === 'Today' || currentList === 'Important') {
-                const listName = task.originalList || Object.keys(tasks).find(ln => tasks[ln].includes(task));
-                if (listName) {
+            // Add list tag if in special view
+            if (isSearch || ['Today', 'Upcoming', 'Important'].includes(currentList)) {
+                if (task.originalList && task.originalList !== 'Inbox') {
                     const tag = document.createElement('span');
-                    tag.className = 'list-tag';
-                    tag.textContent = listName;
+                    tag.textContent = task.originalList;
                     tag.style.fontSize = '10px';
-                    tag.style.background = '#eee';
-                    tag.style.padding = '2px 6px';
-                    tag.style.borderRadius = '4px';
-                    tag.style.marginLeft = '10px';
                     tag.style.color = '#888';
-                    leftContent.appendChild(tag);
+                    tag.style.marginRight = '10px';
+                    li.appendChild(tag);
                 }
             }
+
+            li.appendChild(checkbox);
+            li.appendChild(span);
+
+            actionsDiv.appendChild(todayBtn);
+            actionsDiv.appendChild(priorityBtn);
+            actionsDiv.appendChild(deleteBtn);
+            li.appendChild(actionsDiv);
 
             todoList.appendChild(li);
         });
 
-        updateMainFilterCounts();
+        updateCounts();
     }
 
-    function updateMainFilterCounts() {
-        const todayCount = document.querySelector('#nav-today .count') || createCountBadge('#nav-today');
-        const importantCount = document.querySelector('#nav-important .count') || createCountBadge('#nav-important');
-        const tasksCount = document.querySelector('#nav-tasks-count');
-
-        const todayDate = new Date().toDateString();
-        let tCount = 0;
-        let iCount = 0;
-        let allTasksCount = 0;
-
-        Object.values(tasks).forEach(listTasks => {
-            listTasks.forEach(task => {
-                if (!task.completed) {
-                    if (task.isToday) tCount++;
-                    if (task.priority) iCount++;
-                    allTasksCount++;
-                }
-            });
-        });
-
-        todayCount.textContent = tCount;
-        importantCount.textContent = iCount;
-        if (tasksCount) tasksCount.textContent = allTasksCount;
+    function findTaskRef(taskCopy) {
+        // Helper to find the mutable task object in the main 'tasks' structure
+        // Since we spread {...task} in special views, we have a copy.
+        // We need the reference.
+        let listName = taskCopy.originalList;
+        if (!listName) {
+            // If in normal view, taskCopy might BE the reference if we didn't spread (but we usually do render clean)
+            // But let's look it up to be safe if we change render logic
+            listName = currentList;
+        }
+        if (!tasks[listName]) return null;
+        return tasks[listName].find(t => t.id === taskCopy.id) || tasks[listName].find(t => t.text === taskCopy.text); // Fallback to text if ID missing in old data
     }
 
-    function createCountBadge(selector) {
-        const parent = document.querySelector(selector);
-        if (!parent) return null;
-        const span = document.createElement('span');
-        span.className = 'count';
-        parent.appendChild(span);
-        return span;
-    }
-
-    function renderSidebar() {
-        const navItems = [
-            { id: 'nav-today', name: 'Today', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>' },
-            { id: 'nav-important', name: 'Important', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>' },
-            { id: 'nav-tasks', name: 'Tasks', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>' }
-        ];
-
-        navItems.forEach(item => {
-            const el = document.getElementById(item.id);
-            if (el) {
-                el.classList.toggle('active', currentList === item.name);
-                const iconContainer = el.querySelector('svg') || el;
-                if (el.querySelector('svg')) {
-                    el.querySelector('svg').outerHTML = item.icon;
-                } else {
-                    const labelMap = { 'Today': '오늘 할 일', 'Important': '중요', 'Tasks': '작업' };
-                    el.innerHTML = item.icon + `<span>${labelMap[item.name]}</span>`;
-                }
-
-                el.onclick = (e) => {
-                    e.preventDefault();
-                    switchList(item.name);
-                };
-            }
-        });
-
-        const listsSection = document.querySelector('.lists-section');
-        if (!listsSection) return;
-
-        listsSection.innerHTML = '<div class="section-title">Pages</div>';
-
-        Object.keys(tasks).forEach(listName => {
-            const navItem = document.createElement('a');
-            navItem.href = "#";
-            navItem.className = `nav-item ${listName === currentList ? 'active' : ''}`;
-
-            const taskCount = tasks[listName].length;
-
-            navItem.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                <span>${listName}</span>
-                <div class="list-actions">
-                    <button class="rename-list-btn" title="Rename">✎</button>
-                    <button class="delete-list-btn" title="Delete">✕</button>
-                </div>
-                <span class="count">${taskCount}</span>
-            `;
-
-            navItem.addEventListener('click', (e) => {
-                if (e.target.closest('.list-actions')) return;
-                e.preventDefault();
-                switchList(listName);
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.remove('active');
-                    sidebarOverlay.classList.remove('active');
-                }
-            });
-
-            navItem.querySelector('.delete-list-btn').onclick = (e) => {
-                e.stopPropagation();
-                if (confirm(`'${listName}' 페이지를 삭제하시겠습니까?`)) {
-                    delete tasks[listName];
-                    if (currentList === listName) {
-                        currentList = Object.keys(tasks)[0] || '생활관리';
-                        if (!tasks[currentList]) tasks[currentList] = [];
-                    }
-                    saveTasks();
-                    switchList(currentList);
-                }
-            };
-
-            navItem.querySelector('.rename-list-btn').onclick = (e) => {
-                e.stopPropagation();
-                const newName = prompt("새로운 페이지 이름을 입력하세요:", listName);
-                if (newName && newName.trim() && newName !== listName) {
-                    if (tasks[newName.trim()]) {
-                        alert("이미 존재하는 이름입니다.");
-                        return;
-                    }
-                    tasks[newName.trim()] = tasks[listName];
-                    delete tasks[listName];
-                    if (currentList === listName) currentList = newName.trim();
-                    saveTasks();
-                    switchList(currentList);
-                }
-            };
-
-            listsSection.appendChild(navItem);
-        });
-
-        updateMainFilterCounts();
-    }
-
-    function switchList(listName) {
-        currentList = listName;
-        headerTitle.textContent = listName;
-        saveTasks();
-        renderTasks();
-        renderSidebar();
+    function deleteTask(task) {
+        let listName = task.originalList || currentList;
+        if (tasks[listName]) {
+            tasks[listName] = tasks[listName].filter(t => t.id !== task.id && t.text !== task.text);
+            saveTasks();
+            renderTasks();
+            updateCounts();
+            renderSidebarProjects();
+        }
     }
 
     function addTodo() {
         const text = input.value.trim();
         if (text) {
-            let listToAddTo = currentList;
-            const filterLists = ['Today', 'Important'];
-            if (filterLists.includes(currentList)) {
-                listToAddTo = Object.keys(tasks)[0] || '생활관리';
+            let targetList = currentList;
+            if (['Today', 'Upcoming', 'Important'].includes(currentList)) {
+                targetList = 'Inbox'; // Default to Inbox if adding from special view
             }
 
-            if (!tasks[listToAddTo]) tasks[listToAddTo] = [];
-            tasks[listToAddTo].push({
+            if (!tasks[targetList]) tasks[targetList] = [];
+
+            const newTask = {
                 id: Date.now(),
                 text: text,
                 completed: false,
+                isToday: currentList === 'Today', // If added in Today, mark as Today
                 priority: currentList === 'Important',
-                isToday: currentList === 'Today',
                 dateAdded: new Date().toISOString()
-            });
+            };
+
+            tasks[targetList].push(newTask);
+
             input.value = '';
             saveTasks();
             renderTasks();
-            renderSidebar();
-
-            const container = document.querySelector('.task-list-container');
-            if (container) container.scrollTop = container.scrollHeight;
+            updateCounts();
+            renderSidebarProjects();
         }
     }
 
+    // Input handlers
     const addIcon = document.querySelector('.add-icon');
     if (addIcon) addIcon.addEventListener('click', addTodo);
     input.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTodo(); });
 
+    // Sidebar Navigation & Counts
+    function updateCounts() {
+        // Inbox count
+        const inboxCount = tasks['Inbox'] ? tasks['Inbox'].filter(t => !t.completed).length : 0;
+        document.getElementById('nav-inbox-count').textContent = inboxCount || '';
+
+        // Today count (Global)
+        let todayCount = 0;
+        Object.values(tasks).forEach(list => {
+            todayCount += list.filter(t => !t.completed && t.isToday).length;
+        });
+        document.getElementById('nav-today-count').textContent = todayCount || '';
+    }
+
+    function renderSidebarProjects() {
+        const container = document.querySelector('.lists-section');
+        // Clear existing lists except the title
+        const title = container.querySelector('.section-title');
+        container.innerHTML = '';
+        container.appendChild(title);
+
+        Object.keys(tasks).forEach(listName => {
+            // Render all user lists except 'Inbox' (which has its own nav item)
+            if (listName === 'Inbox') return;
+
+            const count = tasks[listName].filter(t => !t.completed).length;
+
+            const a = document.createElement('a');
+            a.href = '#';
+            a.className = `nav-item ${currentList === listName ? 'active' : ''}`;
+            a.innerHTML = `
+                <span style="width:10px; height:10px; border-radius:50%; background:${stringToColor(listName)}; margin-right:5px;"></span>
+                <span>${listName}</span>
+                <span class="count">${count || ''}</span>
+            `;
+            a.onclick = (e) => {
+                e.preventDefault();
+                switchList(listName);
+            };
+            container.appendChild(a);
+        });
+    }
+
+    function switchList(name) {
+        currentList = name;
+        saveTasks();
+        renderTasks();
+        renderSidebarProjects();
+        // Update nav active states
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+        if (name === 'Inbox') document.getElementById('nav-inbox').classList.add('active');
+        else if (name === 'Today') document.getElementById('nav-today').classList.add('active');
+        else if (name === 'Upcoming') document.getElementById('nav-upcoming').classList.add('active');
+        else if (name === 'Important') document.getElementById('nav-important').classList.add('active');
+        // For project lists, the renderSidebarProjects handles the active class re-render
+    }
+
+    // Attach Sidebar Event Listeners
+    document.getElementById('nav-inbox').onclick = () => switchList('Inbox');
+    document.getElementById('nav-today').onclick = () => switchList('Today');
+    document.getElementById('nav-upcoming').onclick = () => switchList('Upcoming');
+    document.getElementById('nav-important').onclick = () => switchList('Important');
+
+    // New List Logic
     const newListBtn = document.getElementById('new-list-btn');
-    const modalContainer = document.getElementById('modal-container');
+    const modal = document.getElementById('modal-container');
     const modalInput = document.getElementById('modal-input');
     const modalCancel = document.getElementById('modal-cancel');
     const modalConfirm = document.getElementById('modal-confirm');
 
-    function openModal() {
-        modalContainer.classList.add('active');
-        modalInput.value = `Page ${Object.keys(tasks).length + 1}`;
-        setTimeout(() => { modalInput.focus(); modalInput.select(); }, 100);
-    }
+    newListBtn.onclick = () => {
+        modal.style.display = 'flex';
+        modalInput.focus();
+    };
 
-    function closeModal() {
-        modalContainer.classList.remove('active');
-    }
+    const closeModal = () => {
+        modal.style.display = 'none';
+        modalInput.value = '';
+    };
 
-    function handleCreateList() {
-        const listName = modalInput.value.trim();
-        if (listName) {
-            if (!tasks[listName]) {
-                tasks[listName] = [];
-                saveTasks();
-                switchList(listName);
-                closeModal();
-            } else {
-                alert("This page already exists.");
+    modalCancel.onclick = closeModal;
+
+    modalConfirm.onclick = () => {
+        const name = modalInput.value.trim();
+        if (name) {
+            if (tasks[name]) {
+                alert('이미 존재하는 프로젝트입니다.');
+                return;
             }
+            tasks[name] = [];
+            saveTasks();
+            renderSidebarProjects();
+            switchList(name);
+            closeModal();
         }
+    };
+
+    // Hash string to color for list bullets
+    function stringToColor(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+        return '#' + '00000'.substring(0, 6 - c.length) + c;
     }
 
-    if (newListBtn) newListBtn.addEventListener('click', openModal);
-    if (modalCancel) modalCancel.addEventListener('click', closeModal);
-    if (modalConfirm) modalConfirm.addEventListener('click', handleCreateList);
-    modalInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleCreateList(); });
-    modalContainer.addEventListener('click', (e) => { if (e.target === modalContainer) closeModal(); });
+    // Icons
+    const todoIcons = {
+        trash: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>',
+        star: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
+        sun: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>'
+    };
 
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            searchQuery = e.target.value.trim();
-            renderTasks();
-        });
-    }
-
-    const navReset = document.getElementById('nav-reset');
-    if (navReset) {
-        navReset.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (confirm('정말로 모든 할 일을 비우고 기본 목록(생활관리, 일/학업, 자기 돌봄)으로 초기화하시겠습니까?')) {
-                const defaultTasks = {
-                    '생활관리': [
-                        { text: '1. 장보기/ 필요한 물품 채우기', completed: false, dateAdded: new Date().toISOString() },
-                        { text: '2. 청소, 빨래, 쓰레기 버리기', completed: false, dateAdded: new Date().toISOString() },
-                        { text: '3. 은행 업무, 공과금 납부', completed: false, dateAdded: new Date().toISOString() }
-                    ],
-                    '일/학업': [
-                        { text: '1. 오늘 꼭 처리해야 할 업무 1~2개', completed: false, dateAdded: new Date().toISOString() },
-                        { text: '2. 마감일이 가까운 과제나 프로젝트', completed: false, dateAdded: new Date().toISOString() },
-                        { text: '3. 이메일/메신저 확인 및 답장', completed: false, dateAdded: new Date().toISOString() }
-                    ],
-                    '자기 돌봄': [
-                        { text: '1. 식사 챙기기 (특히 건강한 음식)', completed: false, dateAdded: new Date().toISOString() },
-                        { text: '2. 운동이나 스트레칭', completed: false, dateAdded: new Date().toISOString() },
-                        { text: '3. 충분한 휴식, 수면', completed: false, dateAdded: new Date().toISOString() },
-                        { text: '4. 독서나 취미 활동', completed: false, dateAdded: new Date().toISOString() }
-                    ]
-                };
-                localStorage.setItem('todoTasks', JSON.stringify(defaultTasks));
-                localStorage.setItem('currentList', '생활관리');
-                location.reload();
-            }
-        });
-    }
-
-    renderSidebar();
-    renderTasks();
-    headerTitle.textContent = currentList;
+    // Init
+    renderSidebarProjects();
+    switchList(currentList);
 });

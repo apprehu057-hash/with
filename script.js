@@ -5,26 +5,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.querySelector('.search-box input');
     let searchQuery = '';
 
-    // Sidebar Toggle Logic
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
+    const closeBtn = document.getElementById('sidebar-close-btn');
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
 
-    if (toggleBtn) {
-        toggleBtn.addEventListener('click', () => {
-            if (window.innerWidth <= 768) {
-                // Mobile: Toggle Overlay Mode
-                sidebar.classList.toggle('active');
-                sidebarOverlay.classList.toggle('active');
-            } else {
-                // Desktop: Toggle Collapse Mode
-                sidebar.classList.toggle('collapsed');
-            }
-        });
+    function toggleSidebar() {
+        if (window.innerWidth <= 768) {
+            // Mobile: Toggle Overlay Mode
+            sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+        } else {
+            // Desktop: Toggle Collapse Mode
+            sidebar.classList.toggle('collapsed');
+        }
     }
+
+    if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
+    if (closeBtn) closeBtn.addEventListener('click', toggleSidebar);
 
     if (sidebarOverlay) {
         sidebarOverlay.addEventListener('click', () => {
+            // Reuse toggle for consistency or stick to specific remove logic
             sidebar.classList.remove('active');
             sidebarOverlay.classList.remove('active');
         });

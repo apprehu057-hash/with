@@ -56,6 +56,27 @@ body {
     gap: 12px;
     margin-bottom: 20px;
     padding: 0 10px;
+    justify-content: space-between;
+}
+
+/* Internal Sidebar Toggle */
+.sidebar-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    transition: all 0.2s;
+}
+
+.sidebar-close-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    opacity: 1;
 }
 
 .avatar {
